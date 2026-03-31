@@ -995,6 +995,51 @@ def create_app(processor):
     return app
 
 
+def _build_processor_from_env():
+    """Build processor for WSGI servers (Gunicorn) using env/common file names."""
+    eban_path = os.getenv("EBAN_PATH")
+    orders_path = os.getenv("ORDERS_PATH")
+    matdoc_path = os.getenv("MATDOC_PATH")
+
+    if not eban_path and os.path.exists("Headers_xlsx_Sheet1.csv"):
+        eban_path = "Headers_xlsx_Sheet1.csv"
+    if not orders_path and os.path.exists("Book2_xlsx_Sheet1.csv"):
+        orders_path = "Book2_xlsx_Sheet1.csv"
+    if not matdoc_path and os.path.exists("Book5.xlsx"):
+        matdoc_path = "Book5.xlsx"
+
+    # Prefer real data when present, otherwise use demo mode so service still boots.
+    if eban_path or orders_path or matdoc_path:
+        return AI4ProcureProcessor(
+            eban_path=eban_path,
+            orders_path=orders_path,
+            matdoc_path=matdoc_path,
+        ).load()
+
+    return AI4ProcureProcessor().load()
+
+
+if FLASK:
+    try:
+        _wsgi_processor = _build_processor_from_env()
+        app = create_app(_wsgi_processor)
+    except Exception as exc:
+        # Last-resort fallback so platform health checks still succeed with a clear message.
+        app = Flask(__name__)
+
+        @app.route("/")
+        def _startup_error_index():
+            return (
+                "<h1>AI4Procure startup error</h1>"
+                f"<pre>{exc}</pre>"
+                "<p>Set EBAN_PATH / ORDERS_PATH / MATDOC_PATH or include default files.</p>"
+            ), 500
+
+        @app.route("/api/health")
+        def _startup_error_health():
+            return jsonify({"status": "error", "message": str(exc), "version": VERSION}), 500
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # ENTRY POINT
 # ══════════════════════════════════════════════════════════════════════════════
