@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI4Procure v2 — Supply Chain Intelligence</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f5f8;--surface:#ffffff;--surface2:#eef2f6;--surface3:#e4eaf2;
+  --border:#cfd8e3;--border2:#b8c4d3;
+  --purple:#1f3a5f;--purple-dim:rgba(31,58,95,.1);--purple-glow:rgba(31,58,95,.22);
+  --green:#2e7d32;--green-dim:rgba(46,125,50,.1);
+  --amber:#b7791f;--amber-dim:rgba(183,121,31,.12);
+  --red:#b23a48;--red-dim:rgba(178,58,72,.12);
+  --blue:#2b6cb0;--blue-dim:rgba(43,108,176,.12);
+  --cyan:#2c7a7b;--cyan-dim:rgba(44,122,123,.12);
+  --text:#1f2937;--muted:#5f6b7a;--muted2:#4b5563;
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;line-height:1.5;overflow-x:hidden}
+
+/* Sidebar */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100}
+.sb-brand{padding:20px 18px 16px;border-bottom:1px solid var(--border)}
+.sb-tag{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+.sb-name{font-size:21px;font-weight:700;letter-spacing:-.03em;color:var(--text)}
+.sb-name em{color:var(--purple);font-style:normal}
+.sb-ver{display:inline-block;margin-top:6px;background:var(--purple-dim);border:1px solid var(--purple-glow);color:var(--purple);font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:4px}
+.sb-nav{flex:1;padding:10px 0;overflow-y:auto}
+.sb-section{font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;padding:14px 16px 5px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 16px;font-size:12px;color:var(--muted2);cursor:pointer;transition:all .13s;border-left:2px solid transparent;user-select:none;font-weight:400}
+.nav-item:hover{color:var(--text);background:var(--surface2)}
+.nav-item.active{color:var(--text);background:var(--purple-dim);border-left-color:var(--purple);font-weight:500}
+.nav-icon{font-size:13px;width:16px;text-align:center;opacity:.7}
+.nav-item.active .nav-icon{opacity:1}
+.nb{margin-left:auto;background:var(--red);color:#fff;font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:8px;font-weight:600}
+.nb.amber{background:var(--amber)}
+.nb.green{background:var(--green)}
+.sb-foot{padding:14px 16px;border-top:1px solid var(--border);font-family:var(--mono);font-size:9px;color:var(--muted)}
+.sb-foot strong{color:var(--muted2);display:block;margin-bottom:2px;font-weight:500;font-size:10px}
+
+/* Main */
+.main{margin-left:220px;min-height:100vh;display:flex;flex-direction:column}
+.topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.tb-title{font-size:13px;font-weight:600;color:var(--text)}
+.tb-crumb{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:1px}
+.tb-right{display:flex;align-items:center;gap:10px}
+.bell{width:32px;height:32px;border-radius:7px;background:var(--red-dim);border:1px solid rgba(239,68,68,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;position:relative;transition:all .15s}
+.bell:hover{border-color:var(--red)}
+.bell-cnt{position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;font-family:var(--mono);font-size:8px;width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700}
+.user-pill{display:flex;align-items:center;gap:7px;padding:5px 11px;background:var(--purple-dim);border:1px solid var(--purple-glow);border-radius:20px;font-size:11px;font-weight:500;color:var(--purple);cursor:pointer}
+.user-av{width:22px;height:22px;border-radius:50%;background:var(--purple);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:var(--mono)}
+
+/* Content */
+.content{padding:22px 24px;flex:1}
+.panel{display:none}.panel.active{display:block}
+
+/* Command bar */
+.command{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:18px;position:sticky;top:60px;z-index:40;backdrop-filter:blur(4px)}
+.command-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr auto;gap:10px;align-items:end}
+.field{display:flex;flex-direction:column;gap:4px}
+.field-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.field input,.field select{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:11px;outline:none}
+.field input:focus,.field select:focus{border-color:var(--purple)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--border2);background:var(--surface2);color:var(--muted2);padding:4px 9px;border-radius:999px;font-family:var(--mono);font-size:10px;cursor:pointer;transition:all .12s}
+.chip:hover{color:var(--text);border-color:var(--purple-glow)}
+.chip.active{background:var(--purple-dim);border-color:var(--purple);color:var(--purple)}
+.command-summary{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--muted2);gap:8px;flex-wrap:wrap}
+.summary-mono{font-family:var(--mono);font-size:10px;color:var(--muted)}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.purple::before{background:var(--purple)}.kpi.green::before{background:var(--green)}
+.kpi.amber::before{background:var(--amber)}.kpi.red::before{background:var(--red)}
+.kpi.blue::before{background:var(--blue)}.kpi.cyan::before{background:var(--cyan)}
+.kpi-label{font-family:var(--mono);font-size:9px;letter-spacing:.13em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.kpi-val{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1;margin-bottom:4px}
+.kpi.purple .kpi-val{color:var(--purple)}.kpi.green .kpi-val{color:var(--green)}
+.kpi.amber .kpi-val{color:var(--amber)}.kpi.red .kpi-val{color:var(--red)}
+.kpi.blue .kpi-val{color:var(--blue)}.kpi.cyan .kpi-val{color:var(--cyan)}
+.kpi-sub{font-size:11px;color:var(--muted)}
+
+/* Card */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:18px}
+.card-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.card-title{font-size:12px;font-weight:600;color:var(--text)}.card-sub{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:2px}
+.card-body{padding:18px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.three-col{display:grid;grid-template-columns:2fr 1fr;gap:18px}
+
+/* Badge */
+.badge{display:inline-flex;align-items:center;font-family:var(--mono);font-size:9px;font-weight:500;padding:2px 7px;border-radius:4px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.badge.purple{background:var(--purple-dim);color:var(--purple)}.badge.green{background:var(--green-dim);color:var(--green)}
+.badge.amber{background:var(--amber-dim);color:var(--amber)}.badge.red{background:var(--red-dim);color:var(--red)}
+.badge.blue{background:var(--blue-dim);color:var(--blue)}.badge.gray{background:var(--surface3);color:var(--muted2)}
+.badge.cyan{background:var(--cyan-dim);color:var(--cyan)}
+
+/* Table */
+.tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tbl th{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;text-align:left;padding:9px 12px;background:var(--surface2);border-bottom:1px solid var(--border);white-space:nowrap}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}.tbl tr:hover td{background:var(--surface2)}
+.tbl .mono{font-family:var(--mono);font-size:10px}
+.rf{width:3px;padding:0!important}.rf.red{background:var(--red)}.rf.amber{background:var(--amber)}.rf.green{background:var(--green)}.rf.purple{background:var(--purple)}.rf.gray{background:var(--border2)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .13s;font-family:var(--sans);white-space:nowrap}
+.btn-primary{background:var(--purple);color:#fff;border-color:var(--purple)}.btn-primary:hover{opacity:.9}
+.btn-outline{background:transparent;color:var(--purple);border-color:var(--purple-glow)}.btn-outline:hover{background:var(--purple-dim)}
+.btn-red{background:var(--red-dim);color:var(--red);border-color:rgba(239,68,68,.3)}.btn-red:hover{border-color:var(--red)}
+.btn-green{background:var(--green-dim);color:var(--green);border-color:rgba(16,185,129,.3)}.btn-green:hover{border-color:var(--green)}
+.btn-sm{padding:3px 9px;font-size:10px}
+
+/* Tab strip */
+.tabs{display:flex;gap:2px;background:var(--surface2);padding:3px;border-radius:7px}
+.tab{padding:5px 12px;border-radius:5px;border:none;background:transparent;font-size:11px;font-family:var(--sans);color:var(--muted);cursor:pointer;transition:all .13s;font-weight:500}
+.tab:hover{color:var(--text)}.tab.active{background:var(--surface);color:var(--purple);box-shadow:0 1px 3px rgba(0,0,0,.3)}
+
+/* Alert items */
+.alert-row{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
+.alert-row:last-child{border-bottom:none}
+.alert-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.ai-red{background:var(--red-dim)}.ai-amber{background:var(--amber-dim)}.ai-blue{background:var(--blue-dim)}.ai-purple{background:var(--purple-dim)}
+.alert-title{font-size:12px;font-weight:600;margin-bottom:2px}
+.alert-body{font-size:11px;color:var(--muted2);line-height:1.5}
+.alert-meta{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:3px}
+.alert-acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+
+/* Info box */
+.info-box{border-radius:8px;padding:11px 14px;font-size:11px;margin-bottom:16px;display:flex;gap:8px;align-items:flex-start;line-height:1.5}
+.ib-purple{background:var(--purple-dim);border:1px solid var(--purple-glow);color:var(--purple)}
+.ib-amber{background:var(--amber-dim);border:1px solid rgba(245,158,11,.3);color:var(--amber)}
+.ib-red{background:var(--red-dim);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+.ib-green{background:var(--green-dim);border:1px solid rgba(16,185,129,.3);color:var(--green)}
+.ib-cyan{background:var(--cyan-dim);border:1px solid rgba(6,182,212,.3);color:var(--cyan)}
+
+/* Gauge / metric row */
+.metric-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:11px}
+.metric-row:last-child{border-bottom:none}
+.metric-label{color:var(--muted);font-family:var(--mono);font-size:10px}
+.metric-val{font-weight:600;color:var(--text)}
+
+/* Bar in table */
+.mini-bar{height:4px;border-radius:2px;background:var(--surface3);overflow:hidden;width:80px}
+.mini-bar-fill{height:100%;border-radius:2px}
+
+/* Forecast accuracy pill */
+.mape-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-family:var(--mono);font-size:10px;font-weight:500}
+.mape-good{background:var(--green-dim);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.mape-warn{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.mape-bad{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+
+/* Link badge */
+.link-confirmed{background:var(--green-dim);color:var(--green);border:1px solid rgba(16,185,129,.3);border-radius:5px;font-family:var(--mono);font-size:9px;padding:2px 7px}
+.link-partial{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,.3);border-radius:5px;font-family:var(--mono);font-size:9px;padding:2px 7px}
+.link-missing{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,.3);border-radius:5px;font-family:var(--mono);font-size:9px;padding:2px 7px}
+
+/* Email */
+.email-wrap{border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:11px}
+.email-hdr{background:var(--surface2);padding:10px 14px;border-bottom:1px solid var(--border)}
+.email-hdr-row{display:flex;gap:6px;margin-bottom:2px}.email-hdr-row:last-child{margin-bottom:0}
+.email-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);width:34px;flex-shrink:0;padding-top:1px}
+.email-body{padding:18px}
+.email-subject{font-size:13px;font-weight:600;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:10px}
+.email-sec{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--purple);text-transform:uppercase;margin-bottom:7px;margin-top:14px}
+.email-tbl{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:10px}
+.email-tbl th{background:var(--purple);color:#fff;padding:5px 9px;text-align:left;font-family:var(--mono);font-size:9px}
+.email-tbl td{padding:6px 9px;border-bottom:1px solid var(--border)}
+.email-tbl tr:nth-child(even) td{background:var(--surface2)}
+.email-cta{background:var(--purple-dim);border:1px solid var(--purple-glow);border-radius:7px;padding:10px 14px;margin-top:12px;font-size:11px;color:var(--purple)}
+.email-footer{font-size:9px;color:var(--muted);margin-top:12px;font-family:var(--mono);border-top:1px solid var(--border);padding-top:10px}
+
+/* Action steps */
+.step{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.step:last-child{border-bottom:none}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--purple);color:#fff;font-family:var(--mono);font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-title{font-size:12px;font-weight:600;margin-bottom:2px}
+.step-body{font-size:11px;color:var(--muted2);line-height:1.5}
+.step-tags{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.step-tag{font-family:var(--mono);font-size:9px;padding:2px 7px;background:var(--surface3);border:1px solid var(--border);border-radius:4px;color:var(--muted)}
+
+/* Control tower */
+.ct-grid{display:grid;grid-template-columns:2fr 1fr;gap:18px}
+.ct-inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ct-input{display:flex;flex-direction:column;gap:4px}
+.ct-input label{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.ct-input input{accent-color:var(--purple)}
+.ct-val{font-family:var(--mono);font-size:10px;color:var(--muted2)}
+.queue-item{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.queue-item:last-child{border-bottom:none}
+.queue-left{font-size:11px}
+.queue-title{font-weight:600}
+.queue-sub{color:var(--muted2);font-size:10px}
+.queue-score{font-family:var(--mono);font-size:11px;color:var(--purple);font-weight:700}
+
+/* Chart */
+.chart-wrap{height:240px;position:relative}.chart-md{height:200px;position:relative}.chart-sm{height:160px;position:relative}
+
+/* Insight */
+.insight{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.insight:last-child{border-bottom:none}
+.ins-dot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.ins-dot.warning{background:var(--amber)}.ins-dot.alert{background:var(--red)}.ins-dot.info{background:var(--blue)}.ins-dot.gap{background:var(--muted)}
+.ins-title{font-size:11px;font-weight:600;margin-bottom:1px}
+.ins-body{font-size:10px;color:var(--muted2);line-height:1.5}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--surface)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+@media(max-width:900px){.sidebar{width:52px}.sb-brand .sb-name,.sb-brand .sb-tag,.sb-brand .sb-ver,.sb-section,.nav-item span,.nb,.sb-foot{display:none}.nav-item{justify-content:center;padding:10px}.main{margin-left:52px}}
+@media(max-width:1100px){.command-grid{grid-template-columns:1fr 1fr}.command{position:static}}
+@media(max-width:700px){.kpi-grid{grid-template-columns:1fr 1fr}.two-col,.three-col,.ct-grid{grid-template-columns:1fr}.content{padding:14px}.command-grid{grid-template-columns:1fr}.ct-inputs{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div style="display:flex">
+
+<!-- ── Sidebar ── -->
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-tag">Supply Chain Intelligence</div>
+    <div class="sb-name">AI<em>4</em>Procure</div>
+    <div class="sb-ver">v2.0.0</div>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-section">Overview</div>
+    <div class="nav-item active" onclick="nav('overview',this)"><span class="nav-icon">◈</span><span>Dashboard</span></div>
+    <div class="sb-section">Phase 1 — Alert System</div>
+    <div class="nav-item" onclick="nav('alerts',this)"><span class="nav-icon">⚠</span><span>PRQ Alerts</span><span class="nb" id="alertBadge">—</span></div>
+    <div class="nav-item" onclick="nav('crossmatch',this)"><span class="nav-icon">⇄</span><span>PRQ × Orders</span><span class="nb amber" id="linkBadge">6</span></div>
+    <div class="nav-item" onclick="nav('email',this)"><span class="nav-icon">✉</span><span>Alert Email</span></div>
+    <div class="sb-section">Phase 2 — Intelligence</div>
+    <div class="nav-item" onclick="nav('forecast',this)"><span class="nav-icon">↗</span><span>Demand Forecast</span></div>
+    <div class="nav-item" onclick="nav('inventory',this)"><span class="nav-icon">◫</span><span>Inventory Moves</span></div>
+    <div class="nav-item" id="nav-suppliers" style="display:none" onclick="nav('suppliers',this)"><span class="nav-icon">◌</span><span>Supplier Intel</span></div>
+    <div class="nav-item" onclick="nav('materials',this)"><span class="nav-icon">◉</span><span>Material Intel</span></div>
+    <div class="nav-item" onclick="nav('leadtime',this)"><span class="nav-icon">◷</span><span>Lead Time</span></div>
+    <div class="nav-item" onclick="nav('actions',this)"><span class="nav-icon">✓</span><span>Buyer Actions</span></div>
+    <div class="nav-item" onclick="nav('tower',this)"><span class="nav-icon">◎</span><span>Control Tower</span></div>
+  </div>
+  <div class="sb-foot">
+    <strong>Kendra Valton</strong>
+    PM · DS&S NA Procurement
+  </div>
+</nav>
+
+<!-- ── Main ── -->
+<div class="main">
+<div class="topbar">
+  <div>
+    <div class="tb-title" id="tbTitle">Dashboard Overview</div>
+    <div class="tb-crumb">AI4Procure › <span id="tbCrumb">Overview</span></div>
+  </div>
+  <div class="tb-right">
+    <div class="bell" onclick="nav('alerts',null)" title="PRQ Alerts">🔔<div class="bell-cnt" id="bellCnt">—</div></div>
+    <div class="user-pill"><div class="user-av">KV</div>Kendra Valton</div>
+  </div>
+</div>
+
+<div class="content">
+
+<div class="command">
+  <div class="command-grid">
+    <div class="field">
+      <div class="field-label">Smart Search</div>
+      <input id="fltText" type="text" placeholder="PRQ, material, PO, description...">
+    </div>
+    <div class="field">
+      <div class="field-label">From Month</div>
+      <select id="fltFrom"></select>
+    </div>
+    <div class="field">
+      <div class="field-label">To Month</div>
+      <select id="fltTo"></select>
+    </div>
+    <div class="field">
+      <div class="field-label">Plant</div>
+      <select id="fltPlant"></select>
+    </div>
+    <button class="btn btn-outline" onclick="resetFilters()">Reset Filters</button>
+  </div>
+  <div style="margin-top:10px">
+    <div class="field-label" style="margin-bottom:6px">Risk Slicer</div>
+    <div class="chips" id="riskChips"></div>
+  </div>
+  <div class="command-summary">
+    <div id="fltSummary">Initializing filters...</div>
+    <div class="summary-mono" id="fltCoverage"></div>
+  </div>
+</div>
+
+<!-- ══ OVERVIEW ══ -->
+<div class="panel active" id="p-overview">
+  <div class="kpi-grid" id="kpi-overview"></div>
+  <div class="three-col">
+    <div class="card">
+      <div class="card-hdr">
+        <div><div class="card-title">Production Order Volume</div><div class="card-sub">Actuals + seasonality forecast</div></div>
+        <div class="tabs">
+          <button class="tab active" onclick="switchMain('monthly',this)">Monthly</button>
+          <button class="tab" onclick="switchMain('quarterly',this)">Quarterly</button>
+        </div>
+      </div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="mainChart"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">System Insights</div></div>
+      <div class="card-body" style="padding:12px 16px"><div id="insightsList"></div></div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Inventory Spend by Month</div><div class="card-sub">Material Documents · USD</div></div>
+      <div class="card-body"><div class="chart-md"><canvas id="spendChart"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Data Linkage Map</div></div>
+      <div class="card-body" style="padding:10px 16px" id="linkageMap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ALERTS ══ -->
+<div class="panel" id="p-alerts">
+  <div class="info-box ib-purple">ℹ <span><strong>Phase 1 — PRQ Alert Engine.</strong> Flags deleted or at-risk purchase requisitions attached to active production orders. In production, triggered by SAP EBAN deletion events via RFC/BAPI call, cross-matched against RESB (reservation) records.</span></div>
+  <div class="card">
+    <div class="card-hdr">
+      <div><div class="card-title">Active PRQ Alerts</div><div class="card-sub" id="alertSub">Loading…</div></div>
+      <button class="btn btn-primary btn-sm" onclick="nav('email',null)">✉ Generate Alert Email</button>
+    </div>
+    <div id="alertsList" style="padding:0 16px"></div>
+  </div>
+</div>
+
+<!-- ══ CROSS-MATCH ══ -->
+<div class="panel" id="p-crossmatch">
+  <div class="info-box ib-cyan">🔗 <span><strong>Confirmed data linkage found across all 3 files.</strong> 6 PRQ numbers (200068xx series) match directly to Production Order IDs. Plant USD6 links EBAN + MATDOC. Company US10 links MATDOC + Orders. Full join blocked until COOIS is re-exported with Material field.</span></div>
+  <div class="card">
+    <div class="card-hdr">
+      <div><div class="card-title">PRQ Line Items — Cross-Match Table</div><div class="card-sub" id="xmSub">Loading…</div></div>
+      <div style="display:flex;gap:6px" id="xmBadges"></div>
+    </div>
+    <div style="overflow-x:auto"><table class="tbl" id="xmTable"></table></div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Confirmed Cross-File Links</div></div>
+      <div class="card-body" style="padding:10px 16px" id="linkDetails"></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Join Gap Analysis</div></div>
+      <div class="card-body" style="padding:10px 16px" id="joinGap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ EMAIL ══ -->
+<div class="panel" id="p-email">
+  <div class="info-box ib-purple">✉ <span><strong>Auto-generated buyer alert email.</strong> Built from live PRQ data. In production, triggers within minutes of SAP EBAN deletion event via AI4Procure webhook.</span></div>
+  <div class="card">
+    <div class="card-hdr">
+      <div><div class="card-title">Alert Email Preview</div><div class="card-sub">AI4Procure · DS&S NA Procurement</div></div>
+      <div style="display:flex;gap:7px"><button class="btn btn-outline btn-sm">Edit Template</button><button class="btn btn-primary btn-sm">✉ Send Now</button></div>
+    </div>
+    <div class="card-body"><div class="email-wrap" id="emailContent"></div></div>
+  </div>
+</div>
+
+<!-- ══ FORECAST ══ -->
+<div class="panel" id="p-forecast">
+  <div class="info-box ib-amber">⚠ <span><strong>Model transparency.</strong> Current dataset: 25 months. Model: Ridge regression + Fourier seasonality + rolling averages. This model is <strong>directional only</strong> until data reaches 36+ months and Material-level COOIS export is available. MAPE and all metrics are shown below — no hidden accuracy claims.</span></div>
+  <div class="kpi-grid" id="kpi-forecast"></div>
+  <div class="card">
+    <div class="card-hdr">
+      <div><div class="card-title">Order Volume — Actuals + 12-Month Forecast</div><div class="card-sub" id="fcSub">Monthly · dashed = forecast</div></div>
+      <div class="tabs">
+        <button class="tab active" onclick="switchFc('monthly',this)">Monthly</button>
+        <button class="tab" onclick="switchFc('quarterly',this)">Quarterly</button>
+      </div>
+    </div>
+    <div class="card-body"><div class="chart-wrap" style="height:280px"><canvas id="fcChart"></canvas></div></div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">12-Month Forecast</div></div>
+      <div style="overflow-x:auto"><table class="tbl" id="fcTable"></table></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Model Performance</div></div>
+      <div class="card-body" style="padding:10px 16px" id="modelPanel"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ INVENTORY ══ -->
+<div class="panel" id="p-inventory">
+  <div class="kpi-grid" id="kpi-inventory"></div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">GR vs GI by Month</div><div class="card-sub">Goods Receipts vs Issues · USD</div></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="grgiChart"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Movement Type Breakdown</div></div>
+      <div class="card-body"><div class="chart-md"><canvas id="mvtChart"></canvas></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><div class="card-title">Top Purchase Orders by Value</div><div class="card-sub">From Material Documents</div></div>
+    <div style="overflow-x:auto"><table class="tbl" id="poTable"></table></div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-hdr">
+        <div><div class="card-title">Inventory by Product (Top by Value)</div><div class="card-sub">Material-level value exposure</div></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="field-label" style="margin:0">Top N</span>
+          <select id="invTopN" onchange="renderInventory()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px">
+            <option value="10">10</option>
+            <option value="25" selected>25</option>
+            <option value="50">50</option>
+            <option value="9999">All</option>
+          </select>
+        </div>
+      </div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="invProductChart"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr">
+        <div><div class="card-title">Product Inventory Table</div><div class="card-sub">GR, GI, net quantity, turnover, risk</div></div>
+        <button class="btn btn-outline btn-sm" onclick="exportInventoryProductsCsv()">Export CSV</button>
+      </div>
+      <div style="overflow-x:auto"><table class="tbl" id="invProductTable"></table></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><div><div class="card-title">Product Drilldown</div><div class="card-sub" id="invDrilldownTitle">Click any bar in the product chart</div></div></div>
+    <div style="overflow-x:auto"><table class="tbl" id="invDrilldownTable"></table></div>
+  </div>
+</div>
+
+<!-- ══ SUPPLIERS ══ -->
+<div class="panel" id="p-suppliers">
+  <div class="info-box ib-cyan">◌ <span><strong>Supplier intelligence from available source columns.</strong> Metrics are computed only when supplier IDs are present in the loaded files.</span></div>
+  <div class="kpi-grid" id="kpi-suppliers"></div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Supplier Success Rate</div><div class="card-sub">Order success % by supplier</div></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="supplierSuccessChart"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Supplier Reliability Score</div><div class="card-sub">Composite score (success, TAT, GR consistency)</div></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="supplierReliabilityChart"></canvas></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><div><div class="card-title">Supplier Performance Table</div><div class="card-sub" id="supplierSub">Loading...</div></div></div>
+    <div style="overflow-x:auto"><table class="tbl" id="supplierTable"></table></div>
+  </div>
+</div>
+
+<!-- ══ MATERIALS ══ -->
+<div class="panel" id="p-materials">
+  <div class="info-box ib-purple">◉ <span><strong>Material intelligence from MATDOC.</strong> 126 unique materials with risk scoring: EXCESS = high value + low turnover; SHORTAGE = high turnover + low stock. These material numbers can enrich the production orders join once COOIS is re-exported.</span></div>
+  <div class="card">
+    <div class="card-hdr">
+      <div><div class="card-title">Material Risk Intelligence</div><div class="card-sub">Turnover ratio · Excess/shortage risk · Inventory velocity</div></div>
+      <div style="display:flex;gap:6px" id="matRiskBadges"></div>
+    </div>
+    <div style="overflow-x:auto"><table class="tbl" id="matTable"></table></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><div class="card-title">SAP Transaction Code Activity</div><div class="card-sub">From Material Documents</div></div>
+    <div class="card-body"><div class="chart-sm"><canvas id="tcChart"></canvas></div></div>
+  </div>
+</div>
+
+<!-- ══ LEAD TIME ══ -->
+<div class="panel" id="p-leadtime">
+  <div class="kpi-grid" id="kpi-leadtime"></div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Lead Time by Quarter</div><div class="card-sub">Basic Start → Basic Finish date</div></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="leadChart"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">Lead Time Distribution</div></div>
+      <div class="card-body" style="padding:10px 16px" id="leadStats"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ACTIONS ══ -->
+<div class="panel" id="p-actions">
+  <div class="two-col">
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">🔴 Immediate — Phase 1 Actions</div></div>
+      <div class="card-body">
+        <div class="step"><div class="step-num">1</div><div><div class="step-title">Daily cross-match: deleted PRQs vs active production orders</div><div class="step-body">Run EBAN deletion flag check against RESB reservation records. The 6 confirmed PRQ=Order links (200068xx series) are the highest-priority cross-match group. Alert buyers within 60 minutes of any deletion on an open order.</div><div class="step-tags"><span class="step-tag">EBAN · RESB · CO03</span><span class="step-tag">Daily at 06:00</span><span class="step-tag">Email + dashboard alert</span></div></div></div>
+        <div class="step"><div class="step-num">2</div><div><div class="step-title">Contact supplier within 24 hours of any flagged PRQ</div><div class="step-body">Use AI4Procure email template (auto-populated from live EBAN data). Confirm shipment status for all POs linked to the flagged PRQ. Log response and action in the system — this builds the cost-avoidance audit trail.</div><div class="step-tags"><span class="step-tag">24hr SLA</span><span class="step-tag">Supplier template</span><span class="step-tag">Audit log</span></div></div></div>
+        <div class="step"><div class="step-num">3</div><div><div class="step-title">Cancel PO via SAP ME22N if no shipment confirmed</div><div class="step-body">Record cost avoidance amount and reason code in AI4Procure. Current confirmed PRQ value at risk: $28,985. High-risk lines (>$3,000): 5 items. Each cancelled PO generates measurable ROI for the platform.</div><div class="step-tags"><span class="step-tag">SAP ME22N</span><span class="step-tag">$28,985 at risk</span><span class="step-tag">Cost avoidance</span></div></div></div>
+        <div class="step"><div class="step-num">4</div><div><div class="step-title">Feed resolution data back into AI4Procure knowledge graph</div><div class="step-body">Each alert-action pair trains the risk scoring model. After 50+ resolved alerts, the system can prioritize which PRQ deletions require immediate supplier contact vs. monitoring-only.</div><div class="step-tags"><span class="step-tag">Knowledge graph</span><span class="step-tag">Risk scoring ML</span></div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><div class="card-title">🔵 Strategic — Phase 2 Actions</div></div>
+      <div class="card-body">
+        <div class="step"><div class="step-num">5</div><div><div class="step-title">Re-export COOIS with Material field — #1 data blocker</div><div class="step-body">Material is 100% null in production orders. This single fix unlocks per-SKU forecasting, material-level PRQ cross-match, and inventory depletion alerts. Use SAP transaction COOIS → Layout → add MATNR field.</div><div class="step-tags"><span class="step-tag">SAP COOIS · MATNR</span><span class="step-tag">CRITICAL BLOCKER</span></div></div></div>
+        <div class="step"><div class="step-num">6</div><div><div class="step-title">Accumulate 36+ months of data before upgrading forecast model</div><div class="step-body">Current MAPE of 42% is honest — 25 months is insufficient for a commercial-grade forecast. Once 36 months are available, upgrade to Facebook Prophet (pip install prophet). The codebase is already structured for this swap.</div><div class="step-tags"><span class="step-tag">Prophet / SARIMA</span><span class="step-tag">Target MAPE &lt;15%</span></div></div></div>
+        <div class="step"><div class="step-num">7</div><div><div class="step-title">Address 8 excess-inventory materials ($130K+ exposure)</div><div class="step-body">Materials flagged EXCESS have turnover ratio < 0.3 and total value > 75th percentile. Review for reallocation, return-to-vendor, or write-down. Top 4 materials alone represent ~$110K.</div><div class="step-tags"><span class="step-tag">$110K top-4 exposure</span><span class="step-tag">Inventory review</span></div></div></div>
+        <div class="step"><div class="step-num">8</div><div><div class="step-title">Automate spend spike detection for December seasonality</div><div class="step-body">December 2025 ($43,014) and October 2024 ($32,728) were 3-4× the monthly average. Build threshold-based alerts that notify procurement managers when spend exceeds avg + 1σ in any rolling 4-week window.</div><div class="step-tags"><span class="step-tag">Spend alerts</span><span class="step-tag">5 spike months identified</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONTROL TOWER ══ -->
+<div class="panel" id="p-tower">
+  <div class="info-box ib-cyan">◎ <span><strong>Integrated Supply Chain Control Tower.</strong> This module unifies prescriptive actions, what-if simulation, ROI attribution, and buyer prioritization so teams move from dashboards to measurable decisions.</span></div>
+  <div class="kpi-grid" id="kpi-tower"></div>
+  <div class="ct-grid">
+    <div>
+      <div class="card">
+        <div class="card-hdr"><div><div class="card-title">Prescriptive Action Engine</div><div class="card-sub">Ranked decisions with expected impact</div></div></div>
+        <div style="overflow-x:auto"><table class="tbl" id="towerActionsTable"></table></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div><div class="card-title">Decision ROI Tracker</div><div class="card-sub">Closed-loop value from recommended actions</div></div></div>
+        <div style="overflow-x:auto"><table class="tbl" id="towerRoiTable"></table></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title">Scenario Planning Studio</div></div>
+        <div class="card-body">
+          <div class="ct-inputs">
+            <div class="ct-input"><label>Demand Shock</label><input id="scDemand" type="range" min="-30" max="50" value="0"><div class="ct-val" id="scDemandVal">0%</div></div>
+            <div class="ct-input"><label>Supplier Delay</label><input id="scDelay" type="range" min="0" max="60" value="0"><div class="ct-val" id="scDelayVal">0 days</div></div>
+            <div class="ct-input"><label>Price Inflation</label><input id="scInflation" type="range" min="0" max="25" value="0"><div class="ct-val" id="scInflationVal">0%</div></div>
+            <div class="ct-input"><label>Mitigation Budget</label><input id="scBudget" type="range" min="0" max="200000" step="5000" value="50000"><div class="ct-val" id="scBudgetVal">$50,000</div></div>
+          </div>
+          <div id="scenarioOutput" style="margin-top:10px"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title">Priority Work Queue</div></div>
+        <div class="card-body" style="padding:8px 14px" id="towerQueue"></div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title">Supplier Reliability Digital Twin</div></div>
+        <div style="overflow-x:auto"><table class="tbl" id="towerSupplierTable"></table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /main -->
+</div>
+
+<script>
+// ══ Navigation ══════════════════════════════════════════════════════
+const PAGE = {
+  overview:   ['Dashboard Overview','Overview'],
+  alerts:     ['PRQ Alert System','Phase 1 · Alerts'],
+  crossmatch: ['PRQ × Production Order Cross-Match','Phase 1 · Cross-Match'],
+  email:      ['Alert Email Template','Phase 1 · Email'],
+  forecast:   ['Demand Forecast Model','Phase 2 · Forecast'],
+  inventory:  ['Inventory Movement Analysis','Phase 2 · Inventory'],
+  suppliers:  ['Supplier Intelligence','Phase 2 · Suppliers'],
+  materials:  ['Material Risk Intelligence','Phase 2 · Materials'],
+  leadtime:   ['Lead Time Analysis','Phase 2 · Lead Time'],
+  actions:    ['Buyer Action Guide','Actions'],
+  tower:      ['Integrated Control Tower','Phase 3 · Decision Intelligence'],
+};
+function nav(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('p-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  else{const ids=Object.keys(PAGE);document.querySelectorAll('.nav-item')[ids.indexOf(id)]?.classList.add('active');}
+  const[t,c]=PAGE[id]||['',''];
+  document.getElementById('tbTitle').textContent=t;
+  document.getElementById('tbCrumb').textContent=c;
+}
+
+// ══ Chart helpers ════════════════════════════════════════════════════
+const MONO="'JetBrains Mono',monospace";
+const CHART_OPT={
+  responsive:true,maintainAspectRatio:false,
+  interaction:{mode:'index',intersect:false},
+  plugins:{legend:{display:false},tooltip:{backgroundColor:'#ffffff',borderColor:'#cfd8e3',borderWidth:1,titleColor:'#5f6b7a',bodyColor:'#1f2937',titleFont:{family:MONO,size:9},bodyFont:{family:MONO,size:10},padding:10}},
+  scales:{x:{ticks:{color:'#5f6b7a',font:{family:MONO,size:9},maxRotation:40,maxTicksLimit:18},grid:{color:'rgba(31,58,95,0.08)'}},y:{ticks:{color:'#5f6b7a',font:{family:MONO,size:9}},grid:{color:'rgba(31,58,95,0.08)'},beginAtZero:true}}
+};
+const C={pur:'#1f3a5f',purL:'rgba(31,58,95,.1)',grn:'#2e7d32',grnL:'rgba(46,125,50,.1)',amb:'#b7791f',ambL:'rgba(183,121,31,.1)',red:'#b23a48',redL:'rgba(178,58,72,.1)',blu:'#2b6cb0',bluL:'rgba(43,108,176,.1)',cya:'#2c7a7b'};
+const charts={};
+let inventoryRows=[];
+let inventoryDrillMaterial=null;
+
+function lineChart(id,labels,datasets,extra={}){
+  charts[id]?.destroy();
+  const ctx=document.getElementById(id)?.getContext('2d');
+  if(!ctx)return;
+  charts[id]=new Chart(ctx,{type:'line',data:{labels,datasets:datasets.map(d=>({borderWidth:2,pointRadius:labels.length>30?0:2.5,pointHoverRadius:4,fill:true,tension:.35,spanGaps:false,...d}))},options:{...CHART_OPT,...extra}});
+}
+function barChart(id,labels,data,colors,extra={}){
+  charts[id]?.destroy();
+  const ctx=document.getElementById(id)?.getContext('2d');
+  if(!ctx)return;
+  charts[id]=new Chart(ctx,{type:'bar',data:{labels,datasets:[{data,backgroundColor:colors,borderRadius:4,borderSkipped:false}]},options:{...CHART_OPT,...extra}});
+}
+function donutChart(id,labels,data,colors){
+  charts[id]?.destroy();
+  const ctx=document.getElementById(id)?.getContext('2d');
+  if(!ctx)return;
+  charts[id]=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{family:MONO,size:9},color:'#64748b',boxWidth:10}},tooltip:CHART_OPT.plugins.tooltip},cutout:'62%'}});
+}
+
+function orderChart(id,actual,forecast){
+  const aLabels=actual.map(d=>d[0]);
+  const fLabels=forecast.map(d=>d.month);
+  const all=[...aLabels];fLabels.forEach(l=>{if(!all.includes(l))all.push(l);});
+  const aVals=all.map(l=>{const f=actual.find(d=>d[0]===l);return f?f[1]:null;});
+  const fVals=all.map(l=>{
+    if(l===aLabels[aLabels.length-1])return actual[actual.length-1][1];
+    const f=forecast.find(d=>d.month===l);return f?f.orders:null;
+  });
+  lineChart(id,all,[
+    {label:'Actual',data:aVals,borderColor:C.pur,backgroundColor:C.purL,pointBackgroundColor:C.pur},
+    {label:'Forecast',data:fVals,borderColor:C.cya,backgroundColor:'rgba(6,182,212,.07)',borderDash:[5,4],pointBackgroundColor:C.cya},
+  ]);
+}
+
+// ══ Formatters ════════════════════════════════════════════════════
+const $ =n=>'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const N =n=>Number(n).toLocaleString('en-US');
+const bd=(t,c)=>`<span class="badge ${c}">${t}</span>`;
+const riskCls=r=>r==='CRITICAL'?'red':r==='HIGH'?'red':r==='MEDIUM'?'amber':'green';
+const mapeCls=m=>m<=15?'mape-good':m<=30?'mape-warn':'mape-bad';
+
+// ══ Data loader ═══════════════════════════════════════════════════
+let D=null;
+let RAW=null;
+const FILTERS={text:'',from:'ALL',to:'ALL',plant:'ALL',risks:new Set(['CRITICAL','HIGH','MEDIUM','LOW','OK','EXCESS','SHORTAGE'])};
+
+function monthFromDate(v){
+  if(!v||v==='—') return null;
+  const s=String(v);
+  if(/^\d{4}-\d{2}/.test(s)) return s.slice(0,7);
+  return null;
+}
+
+function withinMonthRange(month){
+  if(!month) return true;
+  if(FILTERS.from!=='ALL' && month<FILTERS.from) return false;
+  if(FILTERS.to!=='ALL' && month>FILTERS.to) return false;
+  return true;
+}
+
+function textHit(text, terms){
+  if(!text) return true;
+  const q=text.toLowerCase();
+  return terms.some(t=>String(t||'').toLowerCase().includes(q));
+}
+
+function initFilters(){
+  const monthSet=new Set();
+  (RAW.orders?.monthly||[]).forEach(r=>monthSet.add(r[0]));
+  (RAW.matdoc?.monthly_spend||[]).forEach(r=>monthSet.add(r[0]));
+  (RAW.eban?.prq_table||[]).forEach(r=>{const m=monthFromDate(r.req_date);if(m)monthSet.add(m);});
+  const months=[...monthSet].sort();
+
+  const fromSel=document.getElementById('fltFrom');
+  const toSel=document.getElementById('fltTo');
+  const plantSel=document.getElementById('fltPlant');
+  fromSel.innerHTML=`<option value="ALL">All months</option>${months.map(m=>`<option value="${m}">${m}</option>`).join('')}`;
+  toSel.innerHTML=`<option value="ALL">All months</option>${months.map(m=>`<option value="${m}">${m}</option>`).join('')}`;
+
+  const plants=[...new Set([
+    ...(RAW.eban?.prq_table||[]).map(r=>r.plant),
+    RAW.matdoc?.summary?.plant,
+  ].filter(Boolean))];
+  plantSel.innerHTML=`<option value="ALL">All plants</option>${plants.map(p=>`<option value="${p}">${p}</option>`).join('')}`;
+
+  const chips=['CRITICAL','HIGH','MEDIUM','LOW','EXCESS','SHORTAGE'];
+  document.getElementById('riskChips').innerHTML=chips.map(r=>`<button class="chip active" data-risk="${r}" onclick="toggleRisk('${r}')">${r}</button>`).join('');
+
+  document.getElementById('fltText').addEventListener('input',e=>{FILTERS.text=e.target.value.trim();applyFilters();});
+  fromSel.addEventListener('change',e=>{FILTERS.from=e.target.value;applyFilters();});
+  toSel.addEventListener('change',e=>{FILTERS.to=e.target.value;applyFilters();});
+  plantSel.addEventListener('change',e=>{FILTERS.plant=e.target.value;applyFilters();});
+}
+
+function toggleRisk(risk){
+  if(FILTERS.risks.has(risk)) FILTERS.risks.delete(risk); else FILTERS.risks.add(risk);
+  document.querySelectorAll('#riskChips .chip').forEach(c=>c.classList.toggle('active',FILTERS.risks.has(c.dataset.risk)));
+  applyFilters();
+}
+
+function resetFilters(){
+  FILTERS.text='';FILTERS.from='ALL';FILTERS.to='ALL';FILTERS.plant='ALL';
+  FILTERS.risks=new Set(['CRITICAL','HIGH','MEDIUM','LOW','OK','EXCESS','SHORTAGE']);
+  document.getElementById('fltText').value='';
+  document.getElementById('fltFrom').value='ALL';
+  document.getElementById('fltTo').value='ALL';
+  document.getElementById('fltPlant').value='ALL';
+  document.querySelectorAll('#riskChips .chip').forEach(c=>c.classList.add('active'));
+  applyFilters();
+}
+
+function applyFilters(){
+  if(!RAW) return;
+  const text=FILTERS.text;
+  const matchPlant=p=>FILTERS.plant==='ALL' || String(p||'')===FILTERS.plant;
+  const matchRisk=r=>FILTERS.risks.size===0 || FILTERS.risks.has(String(r||''));
+
+  const prqTable=(RAW.eban?.prq_table||[]).filter(r=>{
+    const m=monthFromDate(r.req_date);
+    return withinMonthRange(m) && matchPlant(r.plant) && matchRisk(r.risk) && textHit(text,[r.prq,r.item,r.description,r.purchase_order,r.material_group,r.risk]);
+  });
+
+  const alerts=(RAW.eban?.alerts||[]).filter(a=>{
+    const m=monthFromDate(a.req_date);
+    return withinMonthRange(m) && matchPlant(a.plant) && matchRisk(a.risk) && textHit(text,[a.prq,a.items?.join(' '),a.purchase_orders?.join(' '),a.material_group,a.risk]);
+  });
+
+  const monthlyOrders=(RAW.orders?.monthly||[]).filter(r=>withinMonthRange(r[0]));
+  const quarterlyOrders=(RAW.orders?.quarterly||[]);
+  const model={...(RAW.orders?.model||{})};
+  model.actuals=(RAW.orders?.model?.actuals||[]).filter(r=>withinMonthRange(r[0]));
+  model.forecast=(RAW.orders?.model?.forecast||[]).filter(r=>withinMonthRange(r.month));
+
+  const monthlySpend=(RAW.matdoc?.monthly_spend||[]).filter(r=>withinMonthRange(r[0]));
+  const grGi=(RAW.matdoc?.gr_gi_monthly||[]).filter(r=>withinMonthRange(r.month));
+  const materials=(RAW.matdoc?.material_intelligence||[]).filter(m=>{
+    return matchRisk(m.risk_label) && textHit(text,[m.material,m.risk_label,m.last_movement]);
+  });
+
+  D={
+    ...RAW,
+    eban:{...(RAW.eban||{}),alerts,prq_table:prqTable},
+    orders:{...(RAW.orders||{}),monthly:monthlyOrders,quarterly:quarterlyOrders,model},
+    matdoc:{...(RAW.matdoc||{}),monthly_spend:monthlySpend,gr_gi_monthly:grGi,material_intelligence:materials}
+  };
+
+  const high=alerts.filter(a=>['CRITICAL','HIGH'].includes(a.risk)).length;
+  document.getElementById('fltSummary').textContent=`${alerts.length} alerts · ${prqTable.length} PRQ lines · ${materials.length} materials · ${high} critical/high`;
+  const rng=`${FILTERS.from==='ALL'?'min':FILTERS.from} → ${FILTERS.to==='ALL'?'max':FILTERS.to}`;
+  document.getElementById('fltCoverage').textContent=`window: ${rng} | plant: ${FILTERS.plant} | risk chips: ${FILTERS.risks.size}`;
+
+  renderAll();
+}
+
+async function loadData(){
+  try{const r=await fetch('/api/data');if(!r.ok)throw new Error();RAW=await r.json();}
+  catch{RAW=EMBEDDED;}
+  initFilters();
+  applyFilters();
+}
+
+function renderAll(){
+  renderSuppliers();
+  renderOverview();
+  renderAlerts();
+  renderCrossMatch();
+  renderEmail();
+  renderForecast();
+  renderInventory();
+  renderMaterials();
+  renderLeadTime();
+  renderControlTower();
+}
+
+// ══ OVERVIEW ══════════════════════════════════════════════════════
+function renderOverview(){
+  const os=D.orders?.summary||{},ms=D.matdoc?.summary||{};
+  const alerts=D.eban?.alerts||[];
+  const highRisk=alerts.filter(a=>a.risk==='HIGH'||a.risk==='CRITICAL').length;
+  document.getElementById('bellCnt').textContent=highRisk;
+  document.getElementById('alertBadge').textContent=highRisk;
+
+  document.getElementById('kpi-overview').innerHTML=[
+    kpi('Total Orders',N(os.total_orders||0),`${os.date_start}–${os.date_end}`,'purple'),
+    kpi('Open Orders',N(os.open||0),`${os.pct_open||0}% not started — avg lead ${os.avg_lead_days}d`,'amber'),
+    kpi('Inventory Value',$(ms.total_amount||0),`${ms.total_docs||0} material documents`,'green'),
+    kpi('PRQ Risk Value',$(D.eban?.summary?.high_risk_value||0),'high-risk purchase requisition lines','red'),
+  ].join('');
+
+  const monthly=D.orders?.monthly||[];
+  const fc=D.orders?.model?.forecast||[];
+  orderChart('mainChart',monthly,fc);
+
+  const spend=D.matdoc?.monthly_spend||[];
+  const spendAvg=(D.matdoc?.spend_intelligence?.monthly_avg)||0;
+  barChart('spendChart',spend.map(s=>s[0]),spend.map(s=>s[1]),spend.map(s=>s[1]>spendAvg*2?C.amb+'cc':C.pur+'88'));
+
+  const ins=D.insights||[];
+  document.getElementById('insightsList').innerHTML=ins.map(i=>`
+    <div class="insight"><div class="ins-dot ${i.type}"></div>
+    <div><div class="ins-title">${i.title}</div><div class="ins-body">${i.body}</div></div></div>`).join('');
+
+  const lnk=D.linkage||{};
+  document.getElementById('linkageMap').innerHTML=`
+    <div class="metric-row"><span class="metric-label">PRQ → Order ID</span><span class="link-confirmed">✓ ${lnk.prq_to_order_count||6} confirmed</span></div>
+    <div class="metric-row"><span class="metric-label">Plant linkage</span><span class="link-confirmed">✓ USD6 (EBAN + MATDOC)</span></div>
+    <div class="metric-row"><span class="metric-label">Company code</span><span class="link-confirmed">✓ US10 (MATDOC + Orders)</span></div>
+    <div class="metric-row"><span class="metric-label">MRP controller</span><span class="link-confirmed">✓ PS1 (Orders + MATDOC)</span></div>
+    <div class="metric-row"><span class="metric-label">Material join</span><span class="link-missing">✗ blocked — null in COOIS</span></div>
+    <div class="metric-row"><span class="metric-label">PO overlap (EBAN↔MATDOC)</span><span class="link-partial">⚬ 0 direct — different series</span></div>
+    <div class="metric-row" style="border:none"><span class="metric-label">Reservation join</span><span class="link-partial">⚬ series mismatch — needs RESB</span></div>`;
+}
+function kpi(label,val,sub,cls){return`<div class="kpi ${cls}"><div class="kpi-label">${label}</div><div class="kpi-val">${val}</div><div class="kpi-sub">${sub}</div></div>`;}
+function switchMain(type,btn){document.querySelectorAll('#p-overview .tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const d=type==='monthly'?D.orders?.monthly:D.orders?.quarterly||[];orderChart('mainChart',d,D.orders?.model?.forecast||[]);}
+
+// ══ ALERTS ═══════════════════════════════════════════════════════
+function renderAlerts(){
+  const alerts=D.eban?.alerts||[];
+  document.getElementById('alertSub').textContent=`${alerts.length} PRQ groups · ${alerts.filter(a=>['CRITICAL','HIGH'].includes(a.risk)).length} critical/high · Plant USD6`;
+  document.getElementById('alertsList').innerHTML=alerts.map(a=>`
+    <div class="alert-row">
+      <div class="alert-icon ${a.risk==='CRITICAL'||a.risk==='HIGH'?'ai-red':'ai-amber'}">${a.risk==='CRITICAL'?'🚨':a.risk==='HIGH'?'🗑':'⚠'}</div>
+      <div style="flex:1">
+        <div class="alert-title" style="color:var(--${riskCls(a.risk)})">${bd(a.risk,'red')} PRQ ${a.prq} — ${a.item_count} line items · ${$(a.total_value)}
+          ${a.is_prod_order_link?'<span class="link-confirmed" style="margin-left:6px">✓ Production Order Link</span>':''}
+        </div>
+        <div class="alert-body">${a.items.map(i=>`<strong>${i}</strong>`).join(', ')}${a.items.length<a.item_count?` +${a.item_count-a.items.length} more`:''}. POs: ${a.purchase_orders.join(', ')||'none'}.</div>
+        <div class="alert-meta">Plant: ${a.plant} · Req: ${a.req_date} · Status: ${a.status} · Mat Group: ${a.material_group} · Deleted: ${a.deleted_count}</div>
+        <div class="alert-acts">
+          <button class="btn btn-red btn-sm">Contact Supplier</button>
+          <button class="btn btn-outline btn-sm">View SAP</button>
+          <button class="btn btn-green btn-sm">Cancel PO</button>
+        </div>
+      </div>
+    </div>`).join('')||'<div style="padding:16px 0;color:var(--muted)">No alerts found.</div>';
+}
+
+// ══ CROSS-MATCH ══════════════════════════════════════════════════
+function renderCrossMatch(){
+  const rows=D.eban?.prq_table||[];
+  const high=rows.filter(r=>r.risk==='HIGH'||r.risk==='CRITICAL').length;
+  document.getElementById('xmSub').textContent=`${rows.length} PRQ line items · Plant USD6 · 6 confirmed Order links`;
+  document.getElementById('xmBadges').innerHTML=`${bd(high+' High Risk','red')} ${bd((rows.length-high)+' OK','green')}`;
+  document.getElementById('xmTable').innerHTML=`
+    <thead><tr><th style="width:3px;padding:0"></th><th>PRQ #</th><th>Item</th><th>Description</th><th>Qty</th><th>Req Date</th><th>Dlv Date</th><th>Purchase Order</th><th>Price</th><th>Total</th><th>Plant</th><th>Link</th><th>Risk</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr>
+      <td class="rf ${riskCls(r.risk)}"></td>
+      <td class="mono">${r.prq}</td><td class="mono">${r.item}</td>
+      <td style="font-weight:500;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.description}</td>
+      <td class="mono">${r.qty}</td><td class="mono">${r.req_date}</td><td class="mono">${r.delivery_date}</td>
+      <td class="mono">${r.purchase_order}</td><td class="mono">${$(r.price)}</td>
+      <td class="mono" style="font-weight:600">${$(r.total_value)}</td>
+      <td>${bd(r.plant,'cyan')}</td>
+      <td>${r.is_prod_order_link?'<span class="link-confirmed">✓ Order</span>':'<span class="link-missing">—</span>'}</td>
+      <td>${bd(r.risk,riskCls(r.risk))}</td>
+    </tr>`).join('')}</tbody>`;
+
+  const lnk=D.linkage||{};
+  document.getElementById('linkDetails').innerHTML=`
+    ${lnk.confirmed_links?.prq_to_order?.map(id=>`<div class="metric-row"><span class="metric-label">${id}</span><span class="link-confirmed">PRQ = Order ID</span></div>`).join('')||''}
+    <div class="metric-row"><span class="metric-label">Shared Plant</span>${bd(lnk.shared_plant||'USD6','cyan')}</div>
+    <div class="metric-row"><span class="metric-label">Shared Company</span>${bd(lnk.shared_company||'US10','blue')}</div>
+    <div class="metric-row" style="border:none"><span class="metric-label">Shared MRP Ctrl</span>${bd(lnk.shared_mrp||'PS1','purple')}</div>`;
+
+  const gap=lnk.join_gap||{};
+  document.getElementById('joinGap').innerHTML=`
+    <div class="metric-row"><span class="metric-label">Material in COOIS</span><span class="link-missing">✗ 100% null</span></div>
+    <div class="metric-row"><span class="metric-label">Reservation join</span><span class="link-missing">✗ series mismatch</span></div>
+    <div class="metric-row"><span class="metric-label">PO overlap EBAN↔MATDOC</span><span class="link-missing">✗ different PO series</span></div>
+    <div class="metric-row"><span class="metric-label">Date overlap (all 3)</span><span class="link-confirmed">✓ Jan 2024 – Mar 2026</span></div>
+    <div class="metric-row" style="border:none"><span class="metric-label">Recommended fix</span>${bd('Re-export COOIS + MATNR','amber')}</div>`;
+}
+
+// ══ EMAIL ════════════════════════════════════════════════════════
+function renderEmail(){
+  const alerts=D.eban?.alerts||[];
+  const top=alerts[0];
+  const rows=D.eban?.prq_table?.filter(r=>r.prq===top?.prq)||[];
+  const dateStr=new Date().toLocaleString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  if(!top){document.getElementById('emailContent').innerHTML='<div style="padding:20px;color:var(--muted)">No alerts.</div>';return;}
+  document.getElementById('emailContent').innerHTML=`
+    <div class="email-hdr">
+      <div class="email-hdr-row"><span class="email-lbl">FROM</span><span>AI4Procure System &lt;ai4procure@dss.com&gt;</span></div>
+      <div class="email-hdr-row"><span class="email-lbl">TO</span><span>Kendra Valton; NA Procurement Buyers &lt;procure@dss.com&gt;</span></div>
+      <div class="email-hdr-row"><span class="email-lbl">DATE</span><span>${dateStr}</span></div>
+    </div>
+    <div class="email-body">
+      <div class="email-subject">⚠ ACTION REQUIRED — PRQ Alert: ${top.item_count} items at risk · $${N(top.total_value)} · DS&S NA Procurement</div>
+      <div style="color:var(--muted2);margin-bottom:12px">AI4Procure has detected purchase requisition items linked to active production orders requiring immediate buyer review to prevent excess inventory or missed supplier cancellations.</div>
+      <div class="email-sec">Items Requiring Immediate Action</div>
+      <table class="email-tbl"><thead><tr><th>PRQ</th><th>Item</th><th>Description</th><th>Qty</th><th>Purchase Order</th><th>Unit Price</th><th>Risk</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr><td class="mono">${r.prq}</td><td class="mono">${r.item}</td><td>${r.description}</td><td>${r.qty}</td><td class="mono">${r.purchase_order}</td><td>${$(r.price)}</td><td style="color:var(--${riskCls(r.risk)});font-weight:600">${r.risk}</td></tr>`).join('')}</tbody></table>
+      <div class="email-sec">Summary</div>
+      <table class="email-tbl"><tbody>
+        <tr><td><strong>Total value at risk</strong></td><td style="color:var(--red);font-weight:600">${$(top.total_value)}</td></tr>
+        <tr><td><strong>Purchase Orders</strong></td><td>${top.purchase_orders.join(', ')||'—'}</td></tr>
+        <tr><td><strong>Requisition date</strong></td><td>${top.req_date}</td></tr>
+        <tr><td><strong>Plant</strong></td><td>${top.plant}</td></tr>
+        <tr><td><strong>MRP controller</strong></td><td>PS1</td></tr>
+        <tr><td><strong>Production order link</strong></td><td>${top.is_prod_order_link?'✓ Confirmed':'Not confirmed'}</td></tr>
+      </tbody></table>
+      <div class="email-sec">Recommended Actions</div>
+      <div style="font-size:11px;line-height:1.8">
+        <strong>1.</strong> Contact supplier for POs <strong>${top.purchase_orders.join(', ')||'listed above'}</strong> — confirm shipment status immediately.<br>
+        <strong>2.</strong> Check production order status in SAP (CO03). Confirm still active and parts are required.<br>
+        <strong>3.</strong> If order closed or parts not needed — cancel PO now (ME22N) before supplier ships.<br>
+        <strong>4.</strong> Document action in AI4Procure with reason code and cost avoidance amount.
+      </div>
+      <div class="email-cta"><strong>Quick Access:</strong> &nbsp;<a href="#" style="color:var(--purple)">Open AI4Procure Dashboard</a> &nbsp;·&nbsp; <a href="#" style="color:var(--purple)">PRQ in SAP</a> &nbsp;·&nbsp; <a href="#" style="color:var(--purple)">Contact Supplier</a></div>
+      <div class="email-footer">Auto-generated · AI4Procure v2.0.0 · DS&S NA Procurement Intelligence · Phase 1 pilot<br>Project Manager: Kendra Valton · Plant: USD6 · Company: US10</div>
+    </div>`;
+}
+
+// ══ FORECAST ════════════════════════════════════════════════════
+function renderForecast(){
+  const m=D.orders?.model||{};
+  const met=m.metrics||{};
+  const fc=m.forecast||[];
+  const avgM=D.orders?.summary?.avg_monthly||69;
+  const fcTotal=fc.slice(0,6).reduce((s,d)=>s+d.orders,0);
+
+  document.getElementById('kpi-forecast').innerHTML=[
+    kpi('12-Mo Forecast Total',N(fc.reduce((s,d)=>s+d.orders,0)),'orders projected over next 12 months','purple'),
+    kpi('MAPE',met.mape!=null?met.mape+'%':'—','mean absolute pct error on holdout','amber'),
+    kpi('R² Score',met.r2!=null?met.r2:'—','coefficient of determination','blue'),
+    kpi('Model Status',m.production_ready?'Ready':'Directional',m.production_ready?'meets <20% MAPE threshold':'needs 36+ months of data','red'),
+  ].join('');
+
+  orderChart('fcChart',D.orders?.monthly||[],fc);
+
+  document.getElementById('fcTable').innerHTML=`
+    <thead><tr><th>Month</th><th>Forecast Orders</th><th>vs Avg</th><th>Trend</th></tr></thead>
+    <tbody>${fc.map((f,i)=>{
+      const diff=f.orders-avgM;const prev=i>0?fc[i-1].orders:null;
+      return`<tr><td class="mono">${f.month}</td>
+        <td style="font-weight:600;color:var(--cyan)">${N(f.orders)}</td>
+        <td>${bd((diff>=0?'+':'')+diff,diff>=0?'green':'amber')}</td>
+        <td style="color:var(--muted);font-size:10px">${prev!=null?(f.orders>prev?'↑':'↓'):'—'}</td></tr>`;
+    }).join('')}</tbody>`;
+
+  document.getElementById('modelPanel').innerHTML=`
+    <div class="metric-row"><span class="metric-label">Model type</span><span class="metric-val" style="font-size:10px">${m.model_name||'—'}</span></div>
+    <div class="metric-row"><span class="metric-label">Training data</span><span class="metric-val">${m.train_months||0} months</span></div>
+    <div class="metric-row"><span class="metric-label">Holdout (test)</span><span class="metric-val">${m.test_months||0} months</span></div>
+    <div class="metric-row"><span class="metric-label">MAPE</span><span class="mape-pill ${mapeCls(met.mape||100)}">${met.mape!=null?met.mape+'%':'—'}</span></div>
+    <div class="metric-row"><span class="metric-label">RMSE</span><span class="metric-val">${met.rmse||'—'}</span></div>
+    <div class="metric-row"><span class="metric-label">MAE</span><span class="metric-val">${met.mae||'—'}</span></div>
+    <div class="metric-row"><span class="metric-label">Production ready?</span>${m.production_ready?bd('Yes — MAPE < 20%','green'):bd('No — directional only','amber')}</div>
+    <div class="metric-row" style="border:none"><span class="metric-label">Upgrade path</span>${bd('Prophet / SARIMA','purple')}</div>
+    <div style="margin-top:12px;padding:10px;background:var(--surface2);border-radius:6px;font-size:10px;color:var(--muted2);line-height:1.5">${m.model_note||''}</div>`;
+}
+function switchFc(type,btn){document.querySelectorAll('#p-forecast .tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const d=type==='monthly'?D.orders?.monthly:D.orders?.quarterly||[];orderChart('fcChart',d,D.orders?.model?.forecast||[]);}
+
+// ══ SUPPLIERS ══════════════════════════════════════════════════
+function renderSuppliers(){
+  const supPack=D.matdoc?.supplier_intelligence||{available:false,suppliers:[]};
+  const navEl=document.getElementById('nav-suppliers');
+  const hasData=Boolean(supPack.available && Array.isArray(supPack.suppliers) && supPack.suppliers.length);
+  if(navEl) navEl.style.display=hasData?'flex':'none';
+  if(!hasData){
+    const panel=document.getElementById('p-suppliers');
+    if(panel) panel.innerHTML='<div class="info-box ib-amber">⚠ <span><strong>Supplier analytics not shown.</strong> This dataset does not contain clean supplier fields required for success rate/reliability reporting.</span></div>';
+    return;
+  }
+
+  const rows=supPack.suppliers.slice().sort((a,b)=>b.reliability_score-a.reliability_score);
+  const top=rows.slice(0,10);
+  const withTat=rows.filter(r=>r.turnaround_days!=null).length;
+  const avgTat=withTat?Math.round(rows.filter(r=>r.turnaround_days!=null).reduce((s,r)=>s+r.turnaround_days,0)/withTat*10)/10:null;
+  const avgSuccess=supPack.summary?.avg_success_rate ?? Math.round(rows.reduce((s,r)=>s+r.order_success_rate,0)/Math.max(rows.length,1));
+  const avgRel=supPack.summary?.avg_reliability ?? Math.round(rows.reduce((s,r)=>s+r.reliability_score,0)/Math.max(rows.length,1));
+
+  document.getElementById('kpi-suppliers').innerHTML=[
+    kpi('Suppliers Tracked',N(supPack.summary?.supplier_count||rows.length),'with identifiable supplier IDs','purple'),
+    kpi('Avg Success Rate',`${avgSuccess}%`,'share of successful order completions','green'),
+    kpi('Avg Turnaround',avgTat!=null?`${avgTat}d`:'N/A','mean PO lifecycle (proxy)','amber'),
+    kpi('Avg Reliability',`${avgRel}`,'composite supplier reliability score','blue'),
+  ].join('');
+
+  barChart('supplierSuccessChart',top.map(r=>r.supplier),top.map(r=>r.order_success_rate),top.map(()=>C.grn+'bb'),{indexAxis:'y',scales:{...CHART_OPT.scales,x:{...CHART_OPT.scales.x,max:100}}});
+  barChart('supplierReliabilityChart',top.map(r=>r.supplier),top.map(r=>r.reliability_score),top.map(r=>r.reliability_score<60?C.red+'bb':r.reliability_score<75?C.amb+'bb':C.blu+'bb'),{indexAxis:'y',scales:{...CHART_OPT.scales,x:{...CHART_OPT.scales.x,max:100}}});
+
+  const locLabel=supPack.location_field ? `Location source: ${supPack.location_field}` : 'Location data unavailable in source';
+  const trueTat=supPack.summary?.tat_true_count ?? 0;
+  const proxyTat=supPack.summary?.tat_proxy_count ?? 0;
+  document.getElementById('supplierSub').textContent=`${rows.length} suppliers · TAT: ${trueTat} true + ${proxyTat} proxy · ${locLabel}`;
+  document.getElementById('supplierTable').innerHTML=`
+    <thead><tr><th>Supplier</th><th>Orders</th><th>Documents</th><th>Success Rate</th><th>Turnaround (days)</th><th>Reliability</th><th>Total Amount</th><th>Location</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr>
+      <td class="mono" style="font-weight:600">${r.supplier}</td>
+      <td class="mono">${N(r.orders||0)}</td>
+      <td class="mono">${N(r.docs||0)}</td>
+      <td>${bd((r.order_success_rate??0)+'%', (r.order_success_rate??0)>=80?'green':(r.order_success_rate??0)>=60?'amber':'red')}</td>
+      <td class="mono">${r.turnaround_days==null?'N/A':r.turnaround_days}</td>
+      <td>${bd(String(r.reliability_score), r.reliability_score>=75?'green':r.reliability_score>=60?'amber':'red')}</td>
+      <td class="mono">${$(r.total_amount||0)}</td>
+      <td class="mono">${r.location||'N/A'}</td>
+    </tr>`).join('')}</tbody>`;
+}
+
+// ══ INVENTORY ═══════════════════════════════════════════════════
+function renderInventory(){
+  const ms=D.matdoc?.summary||{};
+  document.getElementById('kpi-inventory').innerHTML=[
+    kpi('Total Doc Value',$(ms.total_amount||0),`${ms.total_docs||0} material documents`,'purple'),
+    kpi('Goods Receipts',$(ms.gr_amount||0),'inbound inventory value','green'),
+    kpi('Goods Issues',$(ms.gi_amount||0),'to production orders','amber'),
+    kpi('Unique Materials',N(ms.unique_materials||0),`${ms.unique_pos||0} purchase orders · Plant ${ms.plant||'USD6'}`,'blue'),
+  ].join('');
+
+  const grgi=D.matdoc?.gr_gi_monthly||[];
+  const grgiCtx=document.getElementById('grgiChart')?.getContext('2d');
+  charts.grgi?.destroy();
+  if(grgiCtx){charts.grgi=new Chart(grgiCtx,{type:'bar',data:{labels:grgi.map(d=>d.month),datasets:[{label:'GR',data:grgi.map(d=>d.gr),backgroundColor:C.grn+'bb',borderRadius:3},{label:'GI',data:grgi.map(d=>d.gi),backgroundColor:C.amb+'bb',borderRadius:3}]},options:{...CHART_OPT,plugins:{...CHART_OPT.plugins,legend:{display:true,labels:{font:{family:MONO,size:9},color:'#64748b',boxWidth:10}}}}});}
+
+  const mvt=(D.matdoc?.movement_breakdown||[]).slice(0,8);
+  const mvtColors=[C.pur,C.grn,C.amb,C.red,C.blu,C.cya,'#8b5cf6','#f97316'];
+  donutChart('mvtChart',mvt.map(m=>m.label),mvt.map(m=>m.count),mvtColors.map(c=>c+'cc'));
+
+  const pos=D.matdoc?.po_summary||[];
+  document.getElementById('poTable').innerHTML=`<thead><tr><th>Purchase Order</th><th>Amount (USD)</th><th>Qty</th><th>Docs</th><th>Avg Doc Value</th></tr></thead>
+    <tbody>${pos.map(p=>`<tr><td class="mono" style="font-weight:600">${p.po}</td><td class="mono" style="color:var(--purple)">${$(p.amount)}</td><td class="mono">${N(p.qty)}</td><td class="mono">${p.docs}</td><td class="mono">${$(p.amount/p.docs)}</td></tr>`).join('')}</tbody>`;
+
+  const mats=(D.matdoc?.material_intelligence||[]).slice().sort((a,b)=>b.total_value-a.total_value);
+  const topN=Math.max(1,Number(document.getElementById('invTopN')?.value||25));
+  const topM=mats.slice(0,Math.min(topN,12));
+  inventoryRows=mats.slice(0,topN);
+  const colors=topM.map(m=>m.risk_label==='EXCESS'?C.amb+'cc':m.risk_label==='SHORTAGE'?C.red+'cc':C.pur+'99');
+  barChart('invProductChart',topM.map(m=>m.material),topM.map(m=>m.total_value),colors,{indexAxis:'y',onClick:(_,els)=>{
+    if(!els?.length) return;
+    const idx=els[0].index;
+    inventoryDrillMaterial=topM[idx]?.material||null;
+    renderInventoryDrilldown(mats);
+  }});
+
+  document.getElementById('invProductTable').innerHTML=`
+    <thead><tr><th>Material</th><th>Total Value</th><th>GR Qty</th><th>GI Qty</th><th>Net Qty</th><th>Turnover</th><th>Risk</th></tr></thead>
+    <tbody>${inventoryRows.map(m=>`<tr>
+      <td class="mono" style="font-weight:600">${m.material}</td>
+      <td class="mono" style="color:var(--purple)">${$(m.total_value)}</td>
+      <td class="mono" style="color:var(--green)">${N(m.gr_qty)}</td>
+      <td class="mono" style="color:var(--amber)">${N(m.gi_qty)}</td>
+      <td class="mono">${N((Number(m.gr_qty)||0)-(Number(m.gi_qty)||0))}</td>
+      <td class="mono">${Number(m.turnover_ratio||0).toFixed(2)}x</td>
+      <td>${bd(m.risk_label,m.risk_label==='EXCESS'?'amber':m.risk_label==='SHORTAGE'?'red':'green')}</td>
+    </tr>`).join('')}</tbody>`;
+
+  renderInventoryDrilldown(mats);
+}
+
+function renderInventoryDrilldown(mats){
+  const m=(mats||[]).find(x=>x.material===inventoryDrillMaterial) || (mats||[])[0];
+  if(!m){
+    document.getElementById('invDrilldownTitle').textContent='No product data available';
+    document.getElementById('invDrilldownTable').innerHTML='';
+    return;
+  }
+  inventoryDrillMaterial=m.material;
+  document.getElementById('invDrilldownTitle').textContent=`Material ${m.material} · detailed metrics`;
+  document.getElementById('invDrilldownTable').innerHTML=`
+    <thead><tr><th>Metric</th><th>Value</th><th>Interpretation</th></tr></thead>
+    <tbody>
+      <tr><td>Total Value</td><td class="mono">${$(m.total_value)}</td><td>Current product exposure value</td></tr>
+      <tr><td>GR Quantity</td><td class="mono">${N(m.gr_qty)}</td><td>Inbound receipts</td></tr>
+      <tr><td>GI Quantity</td><td class="mono">${N(m.gi_qty)}</td><td>Issued to production / outbound consumption</td></tr>
+      <tr><td>Net Quantity</td><td class="mono">${N((Number(m.gr_qty)||0)-(Number(m.gi_qty)||0))}</td><td>Positive net indicates buildup risk</td></tr>
+      <tr><td>Turnover Ratio</td><td class="mono">${Number(m.turnover_ratio||0).toFixed(2)}x</td><td>Lower turnover means slower movement</td></tr>
+      <tr><td>Average Unit Cost</td><td class="mono">${$(m.avg_unit_cost)}</td><td>Unit economics for reorder decisions</td></tr>
+      <tr><td>Last Movement</td><td class="mono">${m.last_movement}</td><td>Recency signal for slow-moving detection</td></tr>
+      <tr><td>Days Since Last Move</td><td class="mono">${N(m.days_since_last||0)} days</td><td>Aging indicator</td></tr>
+      <tr><td>Risk Label</td><td>${bd(m.risk_label,m.risk_label==='EXCESS'?'amber':m.risk_label==='SHORTAGE'?'red':'green')}</td><td>AI4Procure inventory risk class</td></tr>
+    </tbody>`;
+}
+
+function exportInventoryProductsCsv(){
+  const rows=inventoryRows||[];
+  if(!rows.length) return;
+  const header=['material','total_value','gr_qty','gi_qty','net_qty','turnover_ratio','avg_unit_cost','last_movement','days_since_last','risk_label'];
+  const body=rows.map(m=>[
+    m.material,
+    Number(m.total_value||0),
+    Number(m.gr_qty||0),
+    Number(m.gi_qty||0),
+    Number(m.gr_qty||0)-Number(m.gi_qty||0),
+    Number(m.turnover_ratio||0),
+    Number(m.avg_unit_cost||0),
+    m.last_movement||'',
+    Number(m.days_since_last||0),
+    m.risk_label||''
+  ]);
+  const esc=v=>`"${String(v).replace(/"/g,'""')}"`;
+  const csv=[header.join(','),...body.map(r=>r.map(esc).join(','))].join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='inventory_products.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ══ MATERIALS ════════════════════════════════════════════════════
+function renderMaterials(){
+  const mats=D.matdoc?.material_intelligence||[];
+  const excess=mats.filter(m=>m.risk_label==='EXCESS').length;
+  const shortage=mats.filter(m=>m.risk_label==='SHORTAGE').length;
+  const slow=mats.filter(m=>m.slow_moving).length;
+  document.getElementById('matRiskBadges').innerHTML=`${bd(excess+' Excess','amber')} ${bd(shortage+' Shortage','red')} ${bd(slow+' Slow-Moving','gray')}`;
+
+  const maxVal=Math.max(...mats.map(m=>m.total_value),1);
+  document.getElementById('matTable').innerHTML=`
+    <thead><tr><th>#</th><th>Material</th><th>Total Value</th><th>GR Qty</th><th>GI Qty</th><th>Turnover</th><th>Avg Unit Cost</th><th>Last Move</th><th>Slow?</th><th>Risk</th></tr></thead>
+    <tbody>${mats.map((m,i)=>`<tr>
+      <td class="mono" style="color:var(--muted)">${i+1}</td>
+      <td class="mono" style="font-weight:600">${m.material}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="mono" style="color:var(--purple)">${$(m.total_value)}</span>
+          <div class="mini-bar"><div class="mini-bar-fill" style="width:${(m.total_value/maxVal*100).toFixed(0)}%;background:var(--${m.risk_label==='EXCESS'?'amber':m.risk_label==='SHORTAGE'?'red':'purple'})"></div></div>
+        </div>
+      </td>
+      <td class="mono" style="color:var(--green)">${N(m.gr_qty)}</td>
+      <td class="mono" style="color:var(--amber)">${N(m.gi_qty)}</td>
+      <td class="mono">${m.turnover_ratio.toFixed(2)}x</td>
+      <td class="mono">${$(m.avg_unit_cost)}</td>
+      <td class="mono" style="color:var(--muted)">${m.last_movement}</td>
+      <td>${m.slow_moving?bd('Slow','amber'):bd('Active','green')}</td>
+      <td>${bd(m.risk_label,m.risk_label==='EXCESS'?'amber':m.risk_label==='SHORTAGE'?'red':'green')}</td>
+    </tr>`).join('')}</tbody>`;
+
+  const tc=D.matdoc?.tc_breakdown||{};
+  const tcL=Object.keys(tc).slice(0,12),tcV=tcL.map(k=>tc[k]);
+  barChart('tcChart',tcL,tcV,tcL.map((_,i)=>[C.pur,C.grn,C.amb,C.red,C.blu,C.cya,'#8b5cf6','#f97316','#06b6d4','#10b981','#f59e0b','#ef4444'][i%12]+'cc'),{indexAxis:'y'});
+}
+
+// ══ LEAD TIME ════════════════════════════════════════════════════
+function renderLeadTime(){
+  const lt=D.orders?.lead_time||{};
+  const os=D.orders?.summary||{};
+  document.getElementById('kpi-leadtime').innerHTML=[
+    kpi('Average Lead Time',lt.overall_mean+'d','basic start → basic finish','purple'),
+    kpi('Median Lead Time',lt.overall_median+'d','50th percentile','green'),
+    kpi('Lead Time Std Dev',lt.overall_std+'d','volatility indicator','amber'),
+    kpi('Open Orders at Risk',N(os.open||0),`${os.pct_open||0}% no actual start — avg ${lt.overall_mean}d lead`,'red'),
+  ].join('');
+
+  const byQ=lt.by_quarter||[];
+  lineChart('leadChart',byQ.map(q=>q.quarter),[
+    {label:'Mean Lead Days',data:byQ.map(q=>q.mean),borderColor:C.pur,backgroundColor:C.purL,pointBackgroundColor:C.pur},
+    {label:'Median Lead Days',data:byQ.map(q=>q.median),borderColor:C.grn,backgroundColor:'transparent',borderDash:[4,3],pointBackgroundColor:C.grn},
+  ]);
+
+  document.getElementById('leadStats').innerHTML=`
+    <div class="metric-row"><span class="metric-label">Overall mean</span><span class="metric-val">${lt.overall_mean}d</span></div>
+    <div class="metric-row"><span class="metric-label">Overall median</span><span class="metric-val">${lt.overall_median}d</span></div>
+    <div class="metric-row"><span class="metric-label">Std deviation</span><span class="metric-val">${lt.overall_std}d</span></div>
+    <div class="metric-row"><span class="metric-label">Peak lead time quarter</span><span class="metric-val">${byQ.length?byQ.reduce((a,b)=>a.mean>b.mean?a:b).quarter:'—'}</span></div>
+    <div class="metric-row"><span class="metric-label">Best lead time quarter</span><span class="metric-val">${byQ.length?byQ.reduce((a,b)=>a.mean<b.mean?a:b).quarter:'—'}</span></div>
+    <div class="metric-row"><span class="metric-label">PRQ window implication</span><span class="metric-val" style="color:var(--amber)">216d avg = buyers need 7mo visibility</span></div>
+    <div class="metric-row" style="border:none"><span class="metric-label">Deletion risk window</span><span class="metric-val" style="color:var(--red)">Any PRQ deleted in this window is at risk</span></div>`;
+}
+
+// ══ CONTROL TOWER ═══════════════════════════════════════════════
+let scenarioBound=false;
+
+function buildPrescriptions(){
+  const rows=D.eban?.prq_table||[];
+  return rows.map(r=>{
+    const riskWeight=r.risk==='CRITICAL'?4:r.risk==='HIGH'?3:r.risk==='MEDIUM'?2:1;
+    const valueWeight=Math.min(r.total_value/3000,3);
+    const score=Math.round((riskWeight*20)+(valueWeight*15)+(r.is_prod_order_link?20:0)+(r.is_deleted?25:0));
+    const action=r.is_deleted?'Recover / Replace PRQ':r.total_value>5000?'Supplier Escalation':r.is_prod_order_link?'Expedite Confirmation':'Monitor';
+    const eta=riskWeight>=3?'24h':riskWeight===2?'48h':'72h';
+    const save=Math.round(r.total_value*(r.risk==='HIGH'||r.risk==='CRITICAL'?0.18:0.08));
+    return {prq:r.prq,item:r.item,risk:r.risk,action,eta,score,save,po:r.purchase_order,desc:r.description};
+  }).sort((a,b)=>b.score-a.score).slice(0,20);
+}
+
+function renderScenario(){
+  const demand=Number(document.getElementById('scDemand')?.value||0);
+  const delay=Number(document.getElementById('scDelay')?.value||0);
+  const inflation=Number(document.getElementById('scInflation')?.value||0);
+  const budget=Number(document.getElementById('scBudget')?.value||0);
+  document.getElementById('scDemandVal').textContent=`${demand}%`;
+  document.getElementById('scDelayVal').textContent=`${delay} days`;
+  document.getElementById('scInflationVal').textContent=`${inflation}%`;
+  document.getElementById('scBudgetVal').textContent=$(budget);
+
+  const baseOpen=Number(D.orders?.summary?.open||0);
+  const baseLead=Number(D.orders?.summary?.avg_lead_days||0);
+  const baseSpend=Number(D.matdoc?.summary?.total_amount||0);
+  const projectedOpen=Math.round(baseOpen*(1+(demand/100)*0.6));
+  const projectedLead=Math.round(baseLead + delay*0.75 + Math.max(0,demand)*0.2);
+  const projectedSpend=Math.round(baseSpend*(1+inflation/100 + Math.max(0,demand)/300));
+  const mitigated=Math.max(0, Math.round((budget/1000) * 120));
+  const netRisk=Math.max(0, projectedOpen - mitigated);
+
+  document.getElementById('scenarioOutput').innerHTML=`
+    <div class="metric-row"><span class="metric-label">Projected open orders</span><span class="metric-val">${N(projectedOpen)}</span></div>
+    <div class="metric-row"><span class="metric-label">Projected avg lead time</span><span class="metric-val">${projectedLead}d</span></div>
+    <div class="metric-row"><span class="metric-label">Projected annualized spend</span><span class="metric-val">${$(projectedSpend)}</span></div>
+    <div class="metric-row"><span class="metric-label">Mitigated risk capacity</span><span class="metric-val" style="color:var(--green)">${N(mitigated)} orders</span></div>
+    <div class="metric-row" style="border:none"><span class="metric-label">Residual risk queue</span><span class="metric-val" style="color:var(--amber)">${N(netRisk)}</span></div>`;
+}
+
+function bindScenarioControls(){
+  if(scenarioBound) return;
+  ['scDemand','scDelay','scInflation','scBudget'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener('input',renderScenario);
+  });
+  scenarioBound=true;
+}
+
+function renderControlTower(){
+  const actions=buildPrescriptions();
+  const totalSave=actions.reduce((s,a)=>s+a.save,0);
+  const urgent=actions.filter(a=>a.score>=80).length;
+  const linked=actions.filter(a=>a.action!=='Monitor').length;
+
+  document.getElementById('kpi-tower').innerHTML=[
+    kpi('Recommended Actions',N(actions.length),'top ranked interventions this cycle','purple'),
+    kpi('Urgent in 24h',N(urgent),'high business impact exceptions','red'),
+    kpi('Savings Potential',$(totalSave),'modeled avoidable cost opportunity','green'),
+    kpi('Automation Coverage',Math.round((linked/Math.max(actions.length,1))*100)+'%','exceptions with explicit playbook','blue'),
+  ].join('');
+
+  document.getElementById('towerActionsTable').innerHTML=`
+    <thead><tr><th>PRQ</th><th>Item</th><th>Risk</th><th>Recommended Action</th><th>ETA</th><th>Impact Score</th><th>Potential Save</th></tr></thead>
+    <tbody>${actions.map(a=>`<tr>
+      <td class="mono">${a.prq}</td>
+      <td class="mono">${a.item}</td>
+      <td>${bd(a.risk,riskCls(a.risk))}</td>
+      <td style="font-weight:600">${a.action}</td>
+      <td class="mono">${a.eta}</td>
+      <td class="mono" style="color:var(--purple)">${a.score}</td>
+      <td class="mono" style="color:var(--green)">${$(a.save)}</td>
+    </tr>`).join('')}</tbody>`;
+
+  document.getElementById('towerRoiTable').innerHTML=`
+    <thead><tr><th>Decision Type</th><th>Volume</th><th>Avg Save</th><th>Cycle Time</th><th>Confidence</th></tr></thead>
+    <tbody>
+      <tr><td>Supplier Escalation</td><td class="mono">${actions.filter(a=>a.action==='Supplier Escalation').length}</td><td class="mono">${$(actions.filter(a=>a.action==='Supplier Escalation').reduce((s,a)=>s+a.save,0)/Math.max(actions.filter(a=>a.action==='Supplier Escalation').length,1))}</td><td class="mono">1.2d</td><td>${bd('High','green')}</td></tr>
+      <tr><td>Recover / Replace PRQ</td><td class="mono">${actions.filter(a=>a.action==='Recover / Replace PRQ').length}</td><td class="mono">${$(actions.filter(a=>a.action==='Recover / Replace PRQ').reduce((s,a)=>s+a.save,0)/Math.max(actions.filter(a=>a.action==='Recover / Replace PRQ').length,1))}</td><td class="mono">0.8d</td><td>${bd('High','green')}</td></tr>
+      <tr><td>Expedite Confirmation</td><td class="mono">${actions.filter(a=>a.action==='Expedite Confirmation').length}</td><td class="mono">${$(actions.filter(a=>a.action==='Expedite Confirmation').reduce((s,a)=>s+a.save,0)/Math.max(actions.filter(a=>a.action==='Expedite Confirmation').length,1))}</td><td class="mono">1.6d</td><td>${bd('Medium','amber')}</td></tr>
+      <tr><td>Monitor</td><td class="mono">${actions.filter(a=>a.action==='Monitor').length}</td><td class="mono">${$(actions.filter(a=>a.action==='Monitor').reduce((s,a)=>s+a.save,0)/Math.max(actions.filter(a=>a.action==='Monitor').length,1))}</td><td class="mono">3.0d</td><td>${bd('Low','red')}</td></tr>
+    </tbody>`;
+
+  document.getElementById('towerQueue').innerHTML=actions.slice(0,8).map((a,i)=>`
+    <div class="queue-item">
+      <div class="queue-left">
+        <div class="queue-title">${i+1}. ${a.action} - PRQ ${a.prq}</div>
+        <div class="queue-sub">${a.desc} | PO ${a.po}</div>
+      </div>
+      <div class="queue-score">${a.score}</div>
+    </div>`).join('');
+
+  const supMap={};
+  actions.forEach(a=>{
+    const key=`Supplier-${String(a.po||'0000').slice(-2)}`;
+    if(!supMap[key]) supMap[key]={name:key,events:0,risk:0,save:0};
+    supMap[key].events += 1;
+    supMap[key].risk += a.score;
+    supMap[key].save += a.save;
+  });
+  const suppliers=Object.values(supMap).map(s=>({
+    ...s,
+    reliability:Math.max(45,Math.min(98,Math.round(100 - (s.risk/Math.max(s.events,1))*0.6)))
+  })).sort((a,b)=>a.reliability-b.reliability).slice(0,8);
+
+  document.getElementById('towerSupplierTable').innerHTML=`
+    <thead><tr><th>Supplier Node</th><th>Reliability</th><th>Events</th><th>Risk Load</th><th>Modeled Exposure</th><th>Status</th></tr></thead>
+    <tbody>${suppliers.map(s=>`<tr>
+      <td class="mono">${s.name}</td>
+      <td class="mono">${s.reliability}%</td>
+      <td class="mono">${s.events}</td>
+      <td class="mono">${Math.round(s.risk)}</td>
+      <td class="mono">${$(s.save)}</td>
+      <td>${s.reliability<70?bd('At Risk','red'):s.reliability<85?bd('Watch','amber'):bd('Stable','green')}</td>
+    </tr>`).join('')}</tbody>`;
+
+  bindScenarioControls();
+  renderScenario();
+}
+
+// ══ EMBEDDED FALLBACK DATA ════════════════════════════════════════
+const EMBEDDED={
+  eban:{
+    summary:{total_rows:95,unique_prqs:12,procurement_prqs:2,total_value:28985.40,deleted_count:0,confirmed_order_links:6,plant:"USD6",high_risk_value:21038.86},
+    alerts:[
+      {prq:"10672166",items:["HMND 1418BW20 N12 Freestanding Enclosure","HMND 90BWFW Inner Panel Full Height"],item_count:2,total_value:4197.84,purchase_orders:["4500195093"],deleted_count:0,risk:"HIGH",req_date:"2024-06-13",is_prod_order_link:false,material_group:"1710120",status:"B",plant:"USD6"},
+      {prq:"10795703",items:["AP11 Heater Board Test Fixture","AP11 New P/S Prototype","AP11 OMRON KIT"],item_count:5,total_value:9138.86,purchase_orders:["4500191357","4500198996","4500200336","4500201081"],deleted_count:0,risk:"HIGH",req_date:"2024-04-25",is_prod_order_link:false,material_group:"1750100",status:"B",plant:"USD6"},
+      {prq:"20006722",items:["Production Order-linked PRQ"],item_count:1,total_value:0,purchase_orders:[],deleted_count:0,risk:"MEDIUM",req_date:"2024-03-27",is_prod_order_link:true,material_group:"—",status:"—",plant:"USD6"},
+    ],
+    prq_table:[
+      {prq:"10672166",item:"1510",description:"HMND 1418BW20 N12 Freestanding Enclosure",qty:1,price:3254.95,total_value:3254.95,req_date:"2024-06-13",delivery_date:"—",purchase_order:"4500195093",material_group:"1710120",status:"B",plant:"USD6",is_deleted:false,is_prod_order_link:false,risk:"HIGH"},
+      {prq:"10672166",item:"1520",description:"HMND 90BWFW Inner Panel Full Height",qty:1,price:942.89,total_value:942.89,req_date:"2024-06-13",delivery_date:"—",purchase_order:"4500195093",material_group:"1710120",status:"B",plant:"USD6",is_deleted:false,is_prod_order_link:false,risk:"LOW"},
+      {prq:"10672166",item:"1530",description:"Resistor Panels & Materials",qty:1,price:3871.90,total_value:3871.90,req_date:"2024-06-26",delivery_date:"—",purchase_order:"4500196059",material_group:"1750100",status:"B",plant:"USD6",is_deleted:false,is_prod_order_link:false,risk:"MEDIUM"},
+      {prq:"10795703",item:"420",description:"AP11 Heater Board Test Fixture",qty:2,price:1690.00,total_value:3380.00,req_date:"2024-04-25",delivery_date:"—",purchase_order:"4500191357",material_group:"1750100",status:"B",plant:"USD6",is_deleted:false,is_prod_order_link:false,risk:"MEDIUM"},
+      {prq:"10795703",item:"430",description:"AP11 New P/S Prototype",qty:4,price:3023.38,total_value:12093.52,req_date:"2024-08-01",delivery_date:"—",purchase_order:"4500198996",material_group:"3430999",status:"B",plant:"USD6",is_deleted:false,is_prod_order_link:false,risk:"HIGH"},
+      {prq:"10795703",item:"440",description:"LF-SW008104 WIREEL_AP11 PANEL LEFT 12C",qty:8,price:25.55,total_value:204.40,req_date:"2024-08-16",delivery_date:"—",purchase_order:"4500200336",material_group:"1750100",status:"B",plant:"USD6",is_deleted:false,is_prod_order_link:false,risk:"LOW"},
+      {prq:"10795703",item:"450",description:"LF-SW008069 WIREEL_AP11 PANEL I/O LEFT",qty:8,price:21.28,total_value:170.24,req_date:"2024-08-16",delivery_date:"—",purchase_order:"4500200336",material_group:"1750100",status:"B",plant:"USD6",is_deleted:false,is_prod_order_link:false,risk:"LOW"},
+      {prq:"10795703",item:"460",description:"AP11 OMRON KIT",qty:10,price:506.75,total_value:5067.50,req_date:"2024-08-26",delivery_date:"—",purchase_order:"4500201081",material_group:"1750100",status:"B",plant:"USD6",is_deleted:false,is_prod_order_link:false,risk:"HIGH"},
+    ]
+  },
+  orders:{
+    summary:{total_orders:1730,started:449,open:1281,pct_open:74.0,avg_lead_days:216,median_lead_days:193,peak_month:"2025-05",peak_count:266,avg_monthly:69,date_start:"Mar 2024",date_end:"Mar 2026",mrp_controllers:{PS1:1728,"001":2},confirmed_prq_links:6},
+    monthly:[["2024-03",22],["2024-04",38],["2024-05",49],["2024-06",38],["2024-07",49],["2024-08",73],["2024-09",54],["2024-10",56],["2024-11",103],["2024-12",36],["2025-01",20],["2025-02",57],["2025-03",72],["2025-04",87],["2025-05",266],["2025-06",54],["2025-07",40],["2025-08",63],["2025-09",106],["2025-10",78],["2025-11",80],["2025-12",61],["2026-01",119],["2026-02",95]],
+    quarterly:[["2024Q1",22],["2024Q2",125],["2024Q3",176],["2024Q4",195],["2025Q1",149],["2025Q2",407],["2025Q3",209],["2025Q4",219],["2026Q1",228]],
+    model:{actuals:[["2024-03",22],["2024-04",38],["2024-05",49],["2024-06",38],["2024-07",49],["2024-08",73],["2024-09",54],["2024-10",56],["2024-11",103],["2024-12",36],["2025-01",20],["2025-02",57],["2025-03",72],["2025-04",87],["2025-05",266],["2025-06",54],["2025-07",40],["2025-08",63],["2025-09",106],["2025-10",78],["2025-11",80],["2025-12",61],["2026-01",119],["2026-02",95]],forecast:[{month:"2026-03",orders:121},{month:"2026-04",orders:129},{month:"2026-05",orders:135},{month:"2026-06",orders:137},{month:"2026-07",orders:135},{month:"2026-08",orders:130},{month:"2026-09",orders:125},{month:"2026-10",orders:121},{month:"2026-11",orders:121},{month:"2026-12",orders:125},{month:"2027-01",orders:133},{month:"2027-02",orders:143}],metrics:{mape:42.3,rmse:36.9,r2:-2.6,mae:32.5},model_name:"Ridge + Fourier seasonality + rolling avg",data_months:24,train_months:19,test_months:5,model_note:"MAPE 42.3% — directional only. 25 months of data is insufficient for commercial-grade forecasting. Upgrade to Prophet/SARIMA once 36+ months and Material-level COOIS export are available. Phase 1 (alerts, cross-match) is fully production-ready.",production_ready:false},
+    lead_time:{overall_mean:216,overall_median:193,overall_std:181,by_quarter:[{quarter:"2024Q1",mean:181.2,median:174},{quarter:"2024Q2",mean:236.7,median:214},{quarter:"2024Q3",mean:230.4,median:210},{quarter:"2024Q4",mean:228.5,median:209},{quarter:"2025Q1",mean:193.4,median:182},{quarter:"2025Q2",mean:243.3,median:220},{quarter:"2025Q3",mean:195.8,median:185},{quarter:"2025Q4",mean:179.5,median:168},{quarter:"2026Q1",mean:224.4,median:200}]},
+  },
+  matdoc:{
+    summary:{total_docs:243,total_amount:289258.06,gr_amount:198650.76,gi_amount:37871.55,xfer_amount:52735.75,unique_materials:126,unique_pos:40,date_start:"2024-01-02",date_end:"2026-03-20",plant:"USD6",top_tc:"CO27",excess_risk_materials:8},
+    monthly_spend:[["2024-01",3433.11],["2024-02",9066.77],["2024-03",138.10],["2024-04",4194.39],["2024-05",482.14],["2024-06",6600.99],["2024-07",19765.06],["2024-08",6139.93],["2024-09",2249.08],["2024-10",32728.14],["2024-11",637.14],["2024-12",3938.54],["2025-01",1364.64],["2025-02",0.0],["2025-03",37590.46],["2025-04",9247.44],["2025-05",29847.18],["2025-06",107.23],["2025-07",32202.60],["2025-08",219.26],["2025-09",21754.50],["2025-10",3.70],["2025-11",348.63],["2025-12",43014.50],["2026-01",5136.34],["2026-03",19048.19]],
+    gr_gi_monthly:[{month:"2024-01",gr:725.0,gi:595.0},{month:"2024-02",gr:725.0,gi:595.0},{month:"2024-04",gr:2118.94,gi:0},{month:"2024-07",gr:17151.95,gi:900.0},{month:"2024-08",gr:4343.74,gi:900.0},{month:"2024-09",gr:2249.95,gi:0},{month:"2024-10",gr:29826.60,gi:0},{month:"2025-03",gr:29826.60,gi:7065.0},{month:"2025-04",gr:9247.44,gi:0},{month:"2025-05",gr:29826.60,gi:0},{month:"2025-07",gr:29878.99,gi:7065.0},{month:"2025-09",gr:21754.50,gi:0},{month:"2025-12",gr:40397.50,gi:0},{month:"2026-01",gr:5136.34,gi:0},{month:"2026-03",gr:19048.19,gi:0}],
+    material_intelligence:[{material:"2312458",total_value:29878.99,gr_qty:1.0,gi_qty:0.0,gr_value:29878.99,gi_value:0,txn_count:1,turnover_ratio:0.0,avg_unit_cost:29878.99,risk_label:"EXCESS",slow_moving:false,days_since_last:40,last_movement:"2026-02-18"},{material:"2310125",total_value:29826.60,gr_qty:1.0,gi_qty:0.0,gr_value:29826.60,gi_value:0,txn_count:1,turnover_ratio:0.0,avg_unit_cost:29826.60,risk_label:"EXCESS",slow_moving:false,days_since_last:45,last_movement:"2026-02-13"},{material:"238951",total_value:28899.64,gr_qty:1.0,gi_qty:0.0,gr_value:28899.64,gi_value:0,txn_count:1,turnover_ratio:0.0,avg_unit_cost:28899.64,risk_label:"EXCESS",slow_moving:false,days_since_last:28,last_movement:"2026-03-02"},{material:"2304795",total_value:21754.50,gr_qty:25.0,gi_qty:0.0,gr_value:21754.50,gi_value:0,txn_count:1,turnover_ratio:0.0,avg_unit_cost:21754.50,risk_label:"EXCESS",slow_moving:false,days_since_last:192,last_movement:"2025-09-19"},{material:"2310196",total_value:15008.00,gr_qty:0.0,gi_qty:10.0,gr_value:0,gi_value:15008.00,txn_count:2,turnover_ratio:0.0,avg_unit_cost:7504.00,risk_label:"EXCESS",slow_moving:false,days_since_last:110,last_movement:"2025-12-10"},{material:"183573",total_value:8187.00,gr_qty:100.0,gi_qty:0.0,gr_value:8187.00,gi_value:0,txn_count:1,turnover_ratio:0.0,avg_unit_cost:8187.00,risk_label:"EXCESS",slow_moving:true,days_since_last:242,last_movement:"2025-07-31"},{material:"178240",total_value:7065.00,gr_qty:0.0,gi_qty:1.0,gr_value:0,gi_value:7065.00,txn_count:1,turnover_ratio:0.0,avg_unit_cost:7065.00,risk_label:"OK",slow_moving:false,days_since_last:155,last_movement:"2025-10-27"},{material:"160707",total_value:6717.00,gr_qty:20.0,gi_qty:0.0,gr_value:6717.00,gi_value:0,txn_count:1,turnover_ratio:0.0,avg_unit_cost:6717.00,risk_label:"EXCESS",slow_moving:true,days_since_last:242,last_movement:"2025-07-31"},{material:"2312157",total_value:5610.02,gr_qty:25.0,gi_qty:4.0,gr_value:5285.00,gi_value:325.02,txn_count:2,turnover_ratio:0.16,avg_unit_cost:2805.01,risk_label:"EXCESS",slow_moving:false,days_since_last:90,last_movement:"2025-12-31"},{material:"2312369",total_value:5006.76,gr_qty:1.0,gi_qty:0.0,gr_value:5006.76,gi_value:0,txn_count:2,turnover_ratio:0.0,avg_unit_cost:2503.38,risk_label:"EXCESS",slow_moving:true,days_since_last:210,last_movement:"2025-09-02"}],
+    movement_breakdown:[{label:"GI for Production Order",count:118,amount:19574.44,qty:413.8},{label:"GR from Delivery (WM)",count:29,amount:49103.40,qty:138.0},{label:"GR from Purchase Order",count:26,amount:149547.36,qty:910.0},{label:"Transfer to Unrestricted",count:10,amount:1688.86,qty:298.0},{label:"Release from QI Stock",count:9,amount:0,qty:62.0},{label:"GI Stock Transfer",count:9,amount:17701.60,qty:346.0},{label:"GR w/o Purchase Order",count:7,amount:0,qty:433.0},{label:"Physical Inventory",count:4,amount:3048.54,qty:1423.6}],
+    po_summary:[{po:"4700102114",amount:40397.50,qty:143.0,docs:1},{po:"4500186459",amount:29421.50,qty:225.0,docs:2},{po:"4800085741",amount:21754.50,qty:25.0,docs:1},{po:"4800090427",amount:16659.72,qty:18.0,docs:5},{po:"4800091504",amount:9247.44,qty:8.0,docs:8},{po:"4500185796",amount:8187.00,qty:100.0,docs:1},{po:"4500171829",amount:6717.00,qty:20.0,docs:1},{po:"4500150263",amount:5006.76,qty:2.0,docs:2}],
+    tc_breakdown:{CO27:65,COGI:35,MIGO_TR:30,VLPOD:29,MIGO_GR:23,MIGO_GI:19,CO11N:12,VL02N:10,QA11:9,MI07:5},
+    spend_intelligence:{monthly_avg:11124.54,monthly_std:13563.12,spike_months:{"2024-10":32728.14,"2025-03":37590.46,"2025-05":29847.18,"2025-07":32202.60,"2025-12":43014.50},spike_count:5,total_spend:289258.06},
+  },
+  linkage:{confirmed_links:{prq_to_order:["20006722","20006790","20006796","20006810","20006835","20006857"],shared_plant:"USD6",shared_company:"US10",shared_mrp:"PS1"},prq_to_order_count:6,shared_plant:"USD6",shared_company:"US10",shared_mrp:"PS1",join_gap:{material_null_in_orders:true,reservation_mismatch:true,po_overlap_eban_matdoc:false,recommendation:"Re-export COOIS with Material field. Use RESB table for Reservation join."}},
+  insights:[
+    {type:"alert",priority:1,title:"8 materials flagged for excess inventory",body:"High-value materials with turnover ratio < 0.3. Top 4 materials (2312458, 2310125, 238951, 2304795) represent ~$110K. Review for reallocation or return-to-vendor."},
+    {type:"warning",priority:2,title:"74% of production orders not started — PRQ risk window open",body:"1,281 orders have no actual start date. Average lead time is 216 days, meaning PRQ deletions on these orders carry a 7-month exposure window."},
+    {type:"alert",priority:2,title:"December 2025 spend spike: $43,014 (3.9× avg)",body:"5 spend spike months identified. December 2025, March and May 2025, July 2025, and October 2024 all exceeded avg + 1σ threshold. Set automated alerts."},
+    {type:"info",priority:3,title:"6 confirmed PRQ → Production Order links found",body:"PRQ numbers 20006722, 20006790, 20006796, 20006810, 20006835, 20006857 are confirmed Production Order IDs. Plant USD6 links EBAN + MATDOC."},
+    {type:"info",priority:4,title:"Forecast model MAPE 42.3% — directional only",body:"25 months of data is below the 36-month threshold for reliable forecasting. Phase 1 (alerts) is fully reliable. Upgrade forecast model once COOIS Material field is populated."},
+    {type:"gap",priority:5,title:"Material field null in COOIS export",body:"Re-export production orders via SAP COOIS with MATNR (material number) to unlock per-SKU forecasting and complete the cross-file join."},
+  ],
+  meta:{version:"2.0.0",generated_at:new Date().toISOString(),data_sources:{eban:true,orders:true,matdoc:true}}
+};
+
+loadData();
+</script>
+</body>
+</html>
