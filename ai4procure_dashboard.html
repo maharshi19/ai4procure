@@ -3,28 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>AI4Procure v2 — Supply Chain Intelligence</title>
+<title>SemiDeep — Supply Chain Intelligence</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#070d1a;--surface:#0f172a;--surface2:#131f36;--surface3:#1a2a45;
-  --border:#233452;--border2:#2b4166;
-  --purple:#6366f1;--purple-dim:rgba(99,102,241,.16);--purple-glow:rgba(99,102,241,.35);
-  --green:#22c55e;--green-dim:rgba(34,197,94,.14);
-  --amber:#f59e0b;--amber-dim:rgba(245,158,11,.15);
-  --red:#ef4444;--red-dim:rgba(239,68,68,.15);
-  --blue:#3b82f6;--blue-dim:rgba(59,130,246,.15);
-  --cyan:#06b6d4;--cyan-dim:rgba(6,182,212,.15);
-  --text:#e6edf7;--muted:#9aa9c0;--muted2:#c4d1e5;
+  --bg:#0e182c;--surface:#0F172A;--surface2:#5874b2;--surface3:#1F2937;
+  --border:#1F2937;--border2:#374151;
+  --purple:#60A5FA;--purple-dim:rgba(96,165,250,.22);--purple-glow:rgba(96,165,250,.5);
+  --green:#34D399;--green-dim:rgba(52,211,153,.18);
+  --amber:#F59E0B;--amber-dim:rgba(245,158,11,.15);
+  --red:#EF4444;--red-dim:rgba(239,68,68,.15);
+  --blue:#3B82F6;--blue-dim:rgba(59,130,246,.2);
+  --cyan:#67E8F9;--cyan-dim:rgba(103,232,249,.2);
+  --text:#F9FAFB;--muted:#A7B0C0;--muted2:#E5E7EB;
   --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23) 0%,rgba(99,102,241,0) 58%),radial-gradient(900px 480px at -120px 95%,rgba(6,182,212,.16) 0%,rgba(6,182,212,0) 58%),var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;line-height:1.5;overflow-x:hidden}
+body{background:radial-gradient(1100px 540px at 100% -100px,rgba(96,165,250,.32) 0%,rgba(96,165,250,0) 58%),radial-gradient(900px 480px at -120px 95%,rgba(103,232,249,.22) 0%,rgba(103,232,249,0) 58%),var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;line-height:1.5;overflow-x:hidden;position:relative}
+body::before{content:'';position:fixed;inset:-20% -10%;z-index:-1;pointer-events:none;background:radial-gradient(36% 30% at 82% 18%,rgba(96,165,250,.2),transparent 70%),radial-gradient(30% 28% at 14% 88%,rgba(103,232,249,.16),transparent 72%);filter:blur(12px);animation:auraFloat 16s ease-in-out infinite alternate}
 
 /* Sidebar */
-.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:rgba(15,23,42,.74);backdrop-filter:blur(10px);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;box-shadow:0 14px 40px rgba(2,6,23,.45)}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:rgba(15,23,42,.74);backdrop-filter:blur(10px);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;box-shadow:0 14px 40px rgba(4,8,16,.45)}
 .sb-brand{padding:20px 18px 16px;border-bottom:1px solid var(--border)}
+.sb-logo{width:100%;max-width:176px;height:auto;display:block;margin:0 auto 10px;filter:drop-shadow(0 0 10px rgba(103,232,249,.28))}
 .sb-tag{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
 .sb-name{font-size:21px;font-weight:700;letter-spacing:-.03em;color:var(--text)}
 .sb-name em{color:var(--purple);font-style:normal}
@@ -33,7 +35,7 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
 .sb-section{font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;padding:14px 16px 5px}
 .nav-item{display:flex;align-items:center;gap:9px;padding:8px 16px;font-size:12px;color:var(--muted2);cursor:pointer;transition:all .13s;border-left:2px solid transparent;user-select:none;font-weight:400}
 .nav-item:hover{color:var(--text);background:var(--surface2)}
-.nav-item.active{color:var(--text);background:var(--purple-dim);border-left-color:var(--purple);font-weight:500;box-shadow:inset 0 0 0 1px rgba(99,102,241,.2)}
+.nav-item.active{color:var(--text);background:var(--purple-dim);border-left-color:var(--purple);font-weight:500;box-shadow:inset 0 0 0 1px rgba(59,130,246,.2)}
 .nav-icon{font-size:13px;width:16px;text-align:center;opacity:.7}
 .nav-item.active .nav-icon{opacity:1}
 .nb{margin-left:auto;background:var(--red);color:#fff;font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:8px;font-weight:600}
@@ -59,7 +61,7 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
 .panel{display:none}.panel.active{display:block}
 
 /* Command bar */
-.command{background:rgba(15,23,42,.74);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:18px;position:sticky;top:60px;z-index:40;backdrop-filter:blur(10px);box-shadow:0 10px 26px rgba(2,6,23,.35)}
+.command{background:rgba(15,23,42,.74);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:18px;position:sticky;top:60px;z-index:40;backdrop-filter:blur(10px);box-shadow:0 10px 26px rgba(4,8,16,.35)}
 .command-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr auto;gap:10px;align-items:end}
 .field{display:flex;flex-direction:column;gap:4px}
 .field-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
@@ -74,7 +76,7 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
 
 /* KPI */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-.kpi{background:linear-gradient(165deg,rgba(19,31,54,.92),rgba(15,23,42,.9));border:1px solid var(--border);border-radius:16px;padding:16px 18px;position:relative;overflow:hidden;box-shadow:0 12px 28px rgba(2,6,23,.38)}
+.kpi{background:linear-gradient(165deg,rgba(17,24,39,.95),rgba(15,23,42,.9));border:1px solid var(--border);border-radius:16px;padding:16px 18px;position:relative;overflow:hidden;box-shadow:0 12px 28px rgba(4,8,16,.38)}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
 .kpi.purple::before{background:var(--purple)}.kpi.green::before{background:var(--green)}
 .kpi.amber::before{background:var(--amber)}.kpi.red::before{background:var(--red)}
@@ -87,7 +89,7 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
 .kpi-sub{font-size:11px;color:var(--muted)}
 
 /* Card */
-.card{background:rgba(15,23,42,.78);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:16px;margin-bottom:18px;box-shadow:0 12px 30px rgba(2,6,23,.35)}
+.card{background:rgba(17,24,39,.85);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:16px;margin-bottom:18px;box-shadow:0 12px 30px rgba(4,8,16,.35)}
 .card-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .card-title{font-size:12px;font-weight:600;color:var(--text)}.card-sub{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:2px}
 .card-body{padding:18px}
@@ -103,15 +105,15 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
 
 /* Table */
 .tbl{width:100%;border-collapse:collapse;font-size:11px}
-.tbl th{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;text-align:left;padding:9px 12px;background:rgba(19,31,54,.95);border-bottom:1px solid var(--border);white-space:nowrap}
+.tbl th{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;text-align:left;padding:9px 12px;background:rgba(17,24,39,.98);border-bottom:1px solid var(--border);white-space:nowrap}
 .tbl td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
-.tbl tr:last-child td{border-bottom:none}.tbl tr:hover td{background:rgba(19,31,54,.9)}
+.tbl tr:last-child td{border-bottom:none}.tbl tr:hover td{background:rgba(17,24,39,.9)}
 .tbl .mono{font-family:var(--mono);font-size:10px}
 .rf{width:3px;padding:0!important}.rf.red{background:var(--red)}.rf.amber{background:var(--amber)}.rf.green{background:var(--green)}.rf.purple{background:var(--purple)}.rf.gray{background:var(--border2)}
 
 /* Buttons */
 .btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .13s;font-family:var(--sans);white-space:nowrap}
-.btn-primary{background:linear-gradient(135deg,#6366f1,#06b6d4);color:#fff;border-color:rgba(99,102,241,.4)}.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(6,182,212,.2)}
+.btn-primary{background:linear-gradient(135deg,#3B82F6,#22D3EE);color:#fff;border-color:rgba(59,130,246,.4)}.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(34,211,238,.2)}
 .btn-outline{background:transparent;color:var(--purple);border-color:var(--purple-glow)}.btn-outline:hover{background:var(--purple-dim)}
 .btn-red{background:var(--red-dim);color:var(--red);border-color:rgba(239,68,68,.3)}.btn-red:hover{border-color:var(--red)}
 .btn-green{background:var(--green-dim);color:var(--green);border-color:rgba(16,185,129,.3)}.btn-green:hover{border-color:var(--green)}
@@ -120,7 +122,7 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
 /* Tab strip */
 .tabs{display:flex;gap:2px;background:var(--surface2);padding:3px;border-radius:7px}
 .tab{padding:5px 12px;border-radius:5px;border:none;background:transparent;font-size:11px;font-family:var(--sans);color:var(--muted);cursor:pointer;transition:all .13s;font-weight:500}
-.tab:hover{color:var(--text)}.tab.active{background:var(--surface);color:var(--purple);box-shadow:0 6px 16px rgba(2,6,23,.35)}
+.tab:hover{color:var(--text)}.tab.active{background:var(--surface);color:var(--purple);box-shadow:0 6px 16px rgba(4,8,16,.35)}
 
 /* Alert items */
 .alert-row{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
@@ -138,7 +140,7 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
 .ib-amber{background:var(--amber-dim);border:1px solid rgba(245,158,11,.3);color:var(--amber)}
 .ib-red{background:var(--red-dim);border:1px solid rgba(239,68,68,.3);color:var(--red)}
 .ib-green{background:var(--green-dim);border:1px solid rgba(16,185,129,.3);color:var(--green)}
-.ib-cyan{background:var(--cyan-dim);border:1px solid rgba(6,182,212,.3);color:var(--cyan)}
+.ib-cyan{background:var(--cyan-dim);border:1px solid rgba(34,211,238,.3);color:var(--cyan)}
 
 /* Gauge / metric row */
 .metric-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:11px}
@@ -216,26 +218,214 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
 @media(max-width:900px){.sidebar{width:52px}.sb-brand .sb-name,.sb-brand .sb-tag,.sb-brand .sb-ver,.sb-section,.nav-item span,.nb,.sb-foot{display:none}.nav-item{justify-content:center;padding:10px}.main{margin-left:52px}}
 @media(max-width:1100px){.command-grid{grid-template-columns:1fr 1fr}.command{position:static}}
 @media(max-width:700px){.kpi-grid{grid-template-columns:1fr 1fr}.two-col,.three-col,.ct-grid{grid-template-columns:1fr}.content{padding:14px}.command-grid{grid-template-columns:1fr}.ct-inputs{grid-template-columns:1fr}}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PREMIUM UI v2 — Loading · Skeleton · Hover · Glow · Motion
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Keyframes ───────────────────────────────────────────────────── */
+@keyframes shimmer{0%{background-position:-800px 0}100%{background-position:800px 0}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes loaderFill{from{width:0%}80%{width:88%}to{width:100%}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes floatDot{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes auraFloat{0%{transform:translate3d(-2%,0,0) scale(1)}100%{transform:translate3d(2%,-2%,0) scale(1.06)}}
+
+/* ── Loading Overlay ──────────────────────────────────────────────── */
+#loadingOverlay{
+  position:fixed;inset:0;z-index:9999;
+  background:radial-gradient(900px 400px at 110% -60px,rgba(59,130,246,.15) 0%,transparent 60%),
+             radial-gradient(700px 380px at -60px 110%,rgba(34,211,238,.11) 0%,transparent 60%),
+             var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  transition:opacity .6s ease;
+}
+#loadingOverlay.fade-out{opacity:0;pointer-events:none}
+#loadingOverlay.gone{display:none}
+.ldr-dots{display:flex;gap:8px;margin-bottom:4px}
+.ldr-dot{width:8px;height:8px;border-radius:50%;animation:floatDot 1.2s ease-in-out infinite}
+.ldr-dot:nth-child(1){background:var(--purple);animation-delay:0s}
+.ldr-dot:nth-child(2){background:var(--cyan);animation-delay:.15s}
+.ldr-dot:nth-child(3){background:var(--purple);animation-delay:.3s}
+.ldr-brand{font-size:32px;font-weight:700;letter-spacing:-.04em;color:var(--text)}
+.ldr-brand em{font-style:normal;background:linear-gradient(135deg,var(--purple),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 18px rgba(34,211,238,.45))}
+.ldr-logo{width:min(460px,78vw);height:auto;display:block;filter:drop-shadow(0 0 14px rgba(103,232,249,.35))}
+.ldr-track{width:220px;height:2px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.ldr-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--purple),var(--cyan));animation:loaderFill 1.4s cubic-bezier(.4,0,.2,1) forwards}
+.ldr-msg{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;animation:pulse 2s ease-in-out infinite}
+
+/* ── Skeleton Shimmer ─────────────────────────────────────────────── */
+.sk{
+  border-radius:6px;
+  background:linear-gradient(90deg,var(--surface2) 25%,var(--surface3) 50%,var(--surface2) 75%);
+  background-size:800px 100%;
+  animation:shimmer 1.6s infinite linear;
+}
+.sk-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.sk-kpi{height:100px;border-radius:16px;border:1px solid var(--border)}
+.sk-chart{height:240px;border-radius:10px}
+.sk-card{border-radius:16px;border:1px solid var(--border);padding:18px;background:rgba(17,24,39,.85);margin-bottom:18px}
+.sk-title{height:14px;width:38%;margin-bottom:14px;border-radius:5px}
+.sk-line{height:11px;border-radius:4px;margin-bottom:8px}
+.sk-line.w90{width:90%}.sk-line.w70{width:70%}.sk-line.w55{width:55%}
+.sk-table-row{height:36px;border-radius:6px;margin-bottom:6px}
+.sk-two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+
+/* ── Card hover lift + glow border ───────────────────────────────── */
+.card{transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;will-change:transform}
+.card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 26px 56px rgba(4,8,16,.7),0 0 0 1px rgba(96,165,250,.32),0 0 22px rgba(103,232,249,.18);
+  border-color:rgba(96,165,250,.4);
+}
+
+/* ── KPI hover glow ───────────────────────────────────────────────── */
+.kpi{transition:transform .2s ease,box-shadow .2s ease;cursor:default}
+.kpi:hover{transform:translateY(-3px) scale(1.018)}
+.kpi.purple:hover{box-shadow:0 18px 40px rgba(4,8,16,.55),0 0 0 1px rgba(96,165,250,.55),0 0 38px rgba(96,165,250,.24)}
+.kpi.green:hover {box-shadow:0 18px 40px rgba(4,8,16,.55),0 0 0 1px rgba(52,211,153,.5), 0 0 34px rgba(52,211,153,.22)}
+.kpi.amber:hover {box-shadow:0 18px 40px rgba(4,8,16,.55),0 0 0 1px rgba(245,158,11,.42),0 0 32px rgba(245,158,11,.16)}
+.kpi.red:hover   {box-shadow:0 18px 40px rgba(4,8,16,.55),0 0 0 1px rgba(239,68,68,.42), 0 0 32px rgba(239,68,68,.16)}
+.kpi.blue:hover  {box-shadow:0 18px 40px rgba(4,8,16,.55),0 0 0 1px rgba(59,130,246,.42),0 0 32px rgba(59,130,246,.16)}
+.kpi.cyan:hover  {box-shadow:0 18px 40px rgba(4,8,16,.55),0 0 0 1px rgba(103,232,249,.5), 0 0 36px rgba(103,232,249,.22)}
+
+/* ── Button premium hover ─────────────────────────────────────────── */
+.btn{transition:transform .15s ease,box-shadow .15s ease,background .15s ease,border-color .15s ease}
+.btn-primary{background:linear-gradient(135deg,#3B82F6,#67E8F9);letter-spacing:.01em}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(103,232,249,.34),0 0 0 1px rgba(103,232,249,.5)}
+.btn-outline:hover{background:rgba(96,165,250,.16);border-color:var(--purple);box-shadow:0 0 16px rgba(96,165,250,.28)}
+.btn-red:hover{border-color:var(--red);box-shadow:0 0 12px rgba(239,68,68,.22)}
+.btn-green:hover{border-color:var(--green);box-shadow:0 0 12px rgba(16,185,129,.22)}
+
+/* ── Nav item glow + slide ────────────────────────────────────────── */
+.nav-item{transition:all .15s ease}
+.nav-item:hover{background:rgba(96,165,250,.13);color:var(--text)}
+.nav-item.active{background:linear-gradient(90deg,rgba(96,165,250,.28),rgba(103,232,249,.08) 88%,transparent)}
+
+/* ── Sidebar brand gradient text ─────────────────────────────────── */
+.sb-name em{
+  background:linear-gradient(135deg,var(--purple),var(--cyan));
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 16px rgba(103,232,249,.45));
+  font-style:normal;
+}
+.sb-ver{background:linear-gradient(135deg,rgba(96,165,250,.25),rgba(103,232,249,.15));border-color:rgba(103,232,249,.45);color:var(--cyan)}
+
+/* ── Topbar polish ────────────────────────────────────────────────── */
+.topbar{background:rgba(11,18,32,.88);backdrop-filter:blur(18px);box-shadow:0 1px 0 var(--border),0 4px 24px rgba(4,8,16,.45)}
+
+/* ── Panel fade-in on nav ─────────────────────────────────────────── */
+.panel.active{animation:fadeInUp .28s ease both}
+
+/* ── Table row hover ─────────────────────────────────────────────── */
+.tbl tr{transition:background .1s ease}
+.tbl tr:hover td{background:linear-gradient(90deg,rgba(96,165,250,.1),rgba(103,232,249,.06))!important}
+
+/* ── Alert row hover ─────────────────────────────────────────────── */
+.alert-row{transition:background .14s ease;border-radius:10px;padding:14px 10px;margin:0 -10px}
+.alert-row:last-child{border-bottom:none}
+.alert-row:hover{background:rgba(96,165,250,.1)}
+
+/* ── Step hover ──────────────────────────────────────────────────── */
+.step{transition:background .14s ease;border-radius:8px;padding:12px 8px;margin:0 -8px}
+.step:last-child{border-bottom:none}
+.step:hover{background:rgba(96,165,250,.08)}
+.step-num{
+  background:linear-gradient(135deg,var(--purple),var(--cyan));
+  box-shadow:0 4px 16px rgba(96,165,250,.45);
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+.step:hover .step-num{transform:scale(1.14);box-shadow:0 6px 22px rgba(96,165,250,.56)}
+
+/* ── Input / Select focus glow ───────────────────────────────────── */
+.field input,.field select{transition:border-color .16s ease,box-shadow .16s ease,background .16s ease}
+.field input:focus,.field select:focus{background:var(--surface3);border-color:var(--purple);box-shadow:0 0 0 3px rgba(96,165,250,.24)}
+
+/* ── Chip improvements ───────────────────────────────────────────── */
+.chip{transition:all .14s ease}
+.chip:hover{transform:translateY(-1px);border-color:rgba(96,165,250,.62)}
+.chip.active{background:linear-gradient(135deg,rgba(96,165,250,.3),rgba(103,232,249,.16));border-color:rgba(103,232,249,.45)}
+
+/* ── User pill + bell ────────────────────────────────────────────── */
+.user-pill{transition:all .15s ease}
+.user-pill:hover{background:rgba(96,165,250,.3);box-shadow:0 0 20px rgba(96,165,250,.36)}
+.bell{transition:all .14s ease}
+.bell:hover{transform:scale(1.1);box-shadow:0 0 12px rgba(239,68,68,.3)}
+
+/* ── Range slider ────────────────────────────────────────────────── */
+input[type=range]{-webkit-appearance:none;height:4px;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--cyan);border-radius:50%;cursor:pointer;box-shadow:0 0 10px rgba(103,232,249,.6);transition:transform .15s ease,box-shadow .15s ease}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.25);box-shadow:0 0 20px rgba(103,232,249,.9)}
+
+/* ── Premium scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:rgba(15,23,42,.5)}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,var(--purple),var(--cyan));border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--cyan)}
+
+/* ── Focus ring ──────────────────────────────────────────────────── */
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid rgba(96,165,250,.82);outline-offset:2px;border-radius:4px}
+
+/* ── Info box hover ──────────────────────────────────────────────── */
+.info-box{transition:box-shadow .18s ease}
+.info-box:hover{box-shadow:0 0 24px rgba(96,165,250,.18)}
+
+/* ── Queue item hover ────────────────────────────────────────────── */
+.queue-item{transition:background .12s ease;border-radius:6px;padding:10px 6px;margin:0 -6px}
+.queue-item:last-child{border-bottom:none}
+.queue-item:hover{background:rgba(96,165,250,.08)}
+
+/* ── Metric row hover ────────────────────────────────────────────── */
+.metric-row{transition:background .1s ease;border-radius:5px;padding:9px 5px;margin:0 -5px}
+.metric-row:last-child{border-bottom:none}
+.metric-row:hover{background:rgba(96,165,250,.07)}
+
+/* ── Insight hover ───────────────────────────────────────────────── */
+.insight{transition:background .12s ease;border-radius:7px;padding:10px 6px;margin:0 -6px}
+.insight:last-child{border-bottom:none}
+.insight:hover{background:rgba(96,165,250,.07)}
+
+/* ── Sidebar ─────────────────────────────────────────────────────── */
+.sidebar{background:rgba(11,18,32,.88);backdrop-filter:blur(14px)}
+
+/* ── Command bar ─────────────────────────────────────────────────── */
+.command{border-color:var(--border2);box-shadow:0 14px 34px rgba(4,8,16,.45),0 0 0 1px rgba(96,165,250,.1)}
 </style>
 </head>
 <body>
+
+<!-- ══ Loading Overlay ══ -->
+<div id="loadingOverlay">
+  <div class="ldr-dots">
+    <div class="ldr-dot"></div>
+    <div class="ldr-dot"></div>
+    <div class="ldr-dot"></div>
+  </div>
+  <img class="ldr-logo" src="/SemiDeep.png" alt="SemiDeep logo">
+  <div class="ldr-track"><div class="ldr-fill"></div></div>
+  <div class="ldr-msg">Initializing supply chain intelligence…</div>
+</div>
+
 <div style="display:flex">
 
 <!-- ── Sidebar ── -->
 <nav class="sidebar">
   <div class="sb-brand">
+    <img class="sb-logo" src="/SemiDeep.png" alt="SemiDeep logo">
     <div class="sb-tag">Supply Chain Intelligence</div>
-    <div class="sb-name">AI<em>4</em>Procure</div>
-    <div class="sb-ver">v2.0.0</div>
+    <div class="sb-name">Semi<em>Deep</em></div>
+    <div class="sb-ver" id="sbVersion">—</div>
   </div>
   <div class="sb-nav">
     <div class="sb-section">Overview</div>
     <div class="nav-item active" onclick="nav('overview',this)"><span class="nav-icon">◈</span><span>Dashboard</span></div>
-    <div class="sb-section">Phase 1 — Alert System</div>
+    <div class="sb-section">Alert System</div>
     <div class="nav-item" onclick="nav('alerts',this)"><span class="nav-icon">⚠</span><span>PRQ Alerts</span><span class="nb" id="alertBadge">—</span></div>
-    <div class="nav-item" onclick="nav('crossmatch',this)"><span class="nav-icon">⇄</span><span>PRQ × Orders</span><span class="nb amber" id="linkBadge">6</span></div>
+    <div class="nav-item" onclick="nav('crossmatch',this)"><span class="nav-icon">⇄</span><span>PRQ × Orders</span><span class="nb amber" id="linkBadge">—</span></div>
     <div class="nav-item" onclick="nav('email',this)"><span class="nav-icon">✉</span><span>Alert Email</span></div>
-    <div class="sb-section">Phase 2 — Intelligence</div>
+    <div class="sb-section">Intelligence</div>
     <div class="nav-item" onclick="nav('forecast',this)"><span class="nav-icon">↗</span><span>Demand Forecast</span></div>
     <div class="nav-item" onclick="nav('inventory',this)"><span class="nav-icon">◫</span><span>Inventory Moves</span></div>
     <div class="nav-item" id="nav-suppliers" style="display:none" onclick="nav('suppliers',this)"><span class="nav-icon">◌</span><span>Supplier Intel</span></div>
@@ -255,7 +445,7 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
 <div class="topbar">
   <div>
     <div class="tb-title" id="tbTitle">Dashboard Overview</div>
-    <div class="tb-crumb">AI4Procure › <span id="tbCrumb">Overview</span></div>
+    <div class="tb-crumb">SemiDeep › <span id="tbCrumb">Overview</span></div>
   </div>
   <div class="tb-right">
     <div class="bell" onclick="nav('alerts',null)" title="PRQ Alerts">🔔<div class="bell-cnt" id="bellCnt">—</div></div>
@@ -328,7 +518,7 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
 
 <!-- ══ ALERTS ══ -->
 <div class="panel" id="p-alerts">
-  <div class="info-box ib-purple">ℹ <span><strong>Phase 1 — PRQ Alert Engine.</strong> Flags deleted or at-risk purchase requisitions attached to active production orders. In production, triggered by SAP EBAN deletion events via RFC/BAPI call, cross-matched against RESB (reservation) records.</span></div>
+  <div class="info-box ib-purple" id="infoAlerts">ℹ <span><strong>PRQ Alert Engine.</strong> Live alert narrative loading from dataset.</span></div>
   <div class="card">
     <div class="card-hdr">
       <div><div class="card-title">Active PRQ Alerts</div><div class="card-sub" id="alertSub">Loading…</div></div>
@@ -340,7 +530,7 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
 
 <!-- ══ CROSS-MATCH ══ -->
 <div class="panel" id="p-crossmatch">
-  <div class="info-box ib-cyan">🔗 <span><strong>Confirmed data linkage found across all 3 files.</strong> 6 PRQ numbers (200068xx series) match directly to Production Order IDs. Plant USD6 links EBAN + MATDOC. Company US10 links MATDOC + Orders. Full join blocked until COOIS is re-exported with Material field.</span></div>
+  <div class="info-box ib-cyan" id="infoCrossmatch">🔗 <span><strong>Cross-file linkage narrative.</strong> Loading current linkage state from dataset.</span></div>
   <div class="card">
     <div class="card-hdr">
       <div><div class="card-title">PRQ Line Items — Cross-Match Table</div><div class="card-sub" id="xmSub">Loading…</div></div>
@@ -362,10 +552,10 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
 
 <!-- ══ EMAIL ══ -->
 <div class="panel" id="p-email">
-  <div class="info-box ib-purple">✉ <span><strong>Auto-generated buyer alert email.</strong> Built from live PRQ data. In production, triggers within minutes of SAP EBAN deletion event via AI4Procure webhook.</span></div>
+  <div class="info-box ib-purple">✉ <span><strong>Auto-generated buyer alert email.</strong> Built from live PRQ data. In production, triggers within minutes of SAP EBAN deletion event via SemiDeep webhook.</span></div>
   <div class="card">
     <div class="card-hdr">
-      <div><div class="card-title">Alert Email Preview</div><div class="card-sub">AI4Procure · DS&S NA Procurement</div></div>
+      <div><div class="card-title">Alert Email Preview</div><div class="card-sub">SemiDeep · DS&S NA Procurement</div></div>
       <div style="display:flex;gap:7px"><button class="btn btn-outline btn-sm">Edit Template</button><button class="btn btn-primary btn-sm">✉ Send Now</button></div>
     </div>
     <div class="card-body"><div class="email-wrap" id="emailContent"></div></div>
@@ -374,11 +564,11 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
 
 <!-- ══ FORECAST ══ -->
 <div class="panel" id="p-forecast">
-  <div class="info-box ib-amber">⚠ <span><strong>Model transparency.</strong> Current dataset: 25 months. Model: Ridge regression + Fourier seasonality + rolling averages. This model is <strong>directional only</strong> until data reaches 36+ months and Material-level COOIS export is available. MAPE and all metrics are shown below — no hidden accuracy claims.</span></div>
+  <div class="info-box ib-amber" id="infoForecast">⚠ <span><strong>Model transparency.</strong> Forecast notes loading from dataset.</span></div>
   <div class="kpi-grid" id="kpi-forecast"></div>
   <div class="card">
     <div class="card-hdr">
-      <div><div class="card-title">Order Volume — Actuals + 12-Month Forecast</div><div class="card-sub" id="fcSub">Monthly · dashed = forecast</div></div>
+      <div><div class="card-title" id="fcTitle">Order Volume — Actuals + Forecast</div><div class="card-sub" id="fcSub">Monthly · dashed = forecast</div></div>
       <div class="tabs">
         <button class="tab active" onclick="switchFc('monthly',this)">Monthly</button>
         <button class="tab" onclick="switchFc('quarterly',this)">Quarterly</button>
@@ -388,7 +578,7 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
   </div>
   <div class="two-col">
     <div class="card">
-      <div class="card-hdr"><div class="card-title">12-Month Forecast</div></div>
+      <div class="card-hdr"><div class="card-title" id="fcTableTitle">Forecast Horizon</div></div>
       <div style="overflow-x:auto"><table class="tbl" id="fcTable"></table></div>
     </div>
     <div class="card">
@@ -421,12 +611,7 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
         <div><div class="card-title">Inventory by Product (Top by Value)</div><div class="card-sub">Material-level value exposure</div></div>
         <div style="display:flex;align-items:center;gap:8px">
           <span class="field-label" style="margin:0">Top N</span>
-          <select id="invTopN" onchange="renderInventory()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px">
-            <option value="10">10</option>
-            <option value="25" selected>25</option>
-            <option value="50">50</option>
-            <option value="9999">All</option>
-          </select>
+          <select id="invTopN" onchange="renderInventory()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px"></select>
         </div>
       </div>
       <div class="card-body"><div class="chart-wrap"><canvas id="invProductChart"></canvas></div></div>
@@ -467,7 +652,7 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
 
 <!-- ══ MATERIALS ══ -->
 <div class="panel" id="p-materials">
-  <div class="info-box ib-purple">◉ <span><strong>Material intelligence from MATDOC.</strong> 126 unique materials with risk scoring: EXCESS = high value + low turnover; SHORTAGE = high turnover + low stock. These material numbers can enrich the production orders join once COOIS is re-exported.</span></div>
+  <div class="info-box ib-purple" id="infoMaterials">◉ <span><strong>Material intelligence from MATDOC.</strong> Dataset-based material summary loading.</span></div>
   <div class="card">
     <div class="card-hdr">
       <div><div class="card-title">Material Risk Intelligence</div><div class="card-sub">Turnover ratio · Excess/shortage risk · Inventory velocity</div></div>
@@ -500,22 +685,12 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
 <div class="panel" id="p-actions">
   <div class="two-col">
     <div class="card">
-      <div class="card-hdr"><div class="card-title">🔴 Immediate — Phase 1 Actions</div></div>
-      <div class="card-body">
-        <div class="step"><div class="step-num">1</div><div><div class="step-title">Daily cross-match: deleted PRQs vs active production orders</div><div class="step-body">Run EBAN deletion flag check against RESB reservation records. The 6 confirmed PRQ=Order links (200068xx series) are the highest-priority cross-match group. Alert buyers within 60 minutes of any deletion on an open order.</div><div class="step-tags"><span class="step-tag">EBAN · RESB · CO03</span><span class="step-tag">Daily at 06:00</span><span class="step-tag">Email + dashboard alert</span></div></div></div>
-        <div class="step"><div class="step-num">2</div><div><div class="step-title">Contact supplier within 24 hours of any flagged PRQ</div><div class="step-body">Use AI4Procure email template (auto-populated from live EBAN data). Confirm shipment status for all POs linked to the flagged PRQ. Log response and action in the system — this builds the cost-avoidance audit trail.</div><div class="step-tags"><span class="step-tag">24hr SLA</span><span class="step-tag">Supplier template</span><span class="step-tag">Audit log</span></div></div></div>
-        <div class="step"><div class="step-num">3</div><div><div class="step-title">Cancel PO via SAP ME22N if no shipment confirmed</div><div class="step-body">Record cost avoidance amount and reason code in AI4Procure. Current confirmed PRQ value at risk: $28,985. High-risk lines (>$3,000): 5 items. Each cancelled PO generates measurable ROI for the platform.</div><div class="step-tags"><span class="step-tag">SAP ME22N</span><span class="step-tag">$28,985 at risk</span><span class="step-tag">Cost avoidance</span></div></div></div>
-        <div class="step"><div class="step-num">4</div><div><div class="step-title">Feed resolution data back into AI4Procure knowledge graph</div><div class="step-body">Each alert-action pair trains the risk scoring model. After 50+ resolved alerts, the system can prioritize which PRQ deletions require immediate supplier contact vs. monitoring-only.</div><div class="step-tags"><span class="step-tag">Knowledge graph</span><span class="step-tag">Risk scoring ML</span></div></div></div>
-      </div>
+      <div class="card-hdr"><div class="card-title">Immediate Actions</div></div>
+      <div class="card-body" id="actionsImmediate"></div>
     </div>
     <div class="card">
-      <div class="card-hdr"><div class="card-title">🔵 Strategic — Phase 2 Actions</div></div>
-      <div class="card-body">
-        <div class="step"><div class="step-num">5</div><div><div class="step-title">Re-export COOIS with Material field — #1 data blocker</div><div class="step-body">Material is 100% null in production orders. This single fix unlocks per-SKU forecasting, material-level PRQ cross-match, and inventory depletion alerts. Use SAP transaction COOIS → Layout → add MATNR field.</div><div class="step-tags"><span class="step-tag">SAP COOIS · MATNR</span><span class="step-tag">CRITICAL BLOCKER</span></div></div></div>
-        <div class="step"><div class="step-num">6</div><div><div class="step-title">Accumulate 36+ months of data before upgrading forecast model</div><div class="step-body">Current MAPE of 42% is honest — 25 months is insufficient for a commercial-grade forecast. Once 36 months are available, upgrade to Facebook Prophet (pip install prophet). The codebase is already structured for this swap.</div><div class="step-tags"><span class="step-tag">Prophet / SARIMA</span><span class="step-tag">Target MAPE &lt;15%</span></div></div></div>
-        <div class="step"><div class="step-num">7</div><div><div class="step-title">Address 8 excess-inventory materials ($130K+ exposure)</div><div class="step-body">Materials flagged EXCESS have turnover ratio < 0.3 and total value > 75th percentile. Review for reallocation, return-to-vendor, or write-down. Top 4 materials alone represent ~$110K.</div><div class="step-tags"><span class="step-tag">$110K top-4 exposure</span><span class="step-tag">Inventory review</span></div></div></div>
-        <div class="step"><div class="step-num">8</div><div><div class="step-title">Automate spend spike detection for December seasonality</div><div class="step-body">December 2025 ($43,014) and October 2024 ($32,728) were 3-4× the monthly average. Build threshold-based alerts that notify procurement managers when spend exceeds avg + 1σ in any rolling 4-week window.</div><div class="step-tags"><span class="step-tag">Spend alerts</span><span class="step-tag">5 spike months identified</span></div></div></div>
-      </div>
+      <div class="card-hdr"><div class="card-title">Strategic Actions</div></div>
+      <div class="card-body" id="actionsStrategic"></div>
     </div>
   </div>
 </div>
@@ -540,10 +715,10 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
         <div class="card-hdr"><div class="card-title">Scenario Planning Studio</div></div>
         <div class="card-body">
           <div class="ct-inputs">
-            <div class="ct-input"><label>Demand Shock</label><input id="scDemand" type="range" min="-30" max="50" value="0"><div class="ct-val" id="scDemandVal">0%</div></div>
-            <div class="ct-input"><label>Supplier Delay</label><input id="scDelay" type="range" min="0" max="60" value="0"><div class="ct-val" id="scDelayVal">0 days</div></div>
-            <div class="ct-input"><label>Price Inflation</label><input id="scInflation" type="range" min="0" max="25" value="0"><div class="ct-val" id="scInflationVal">0%</div></div>
-            <div class="ct-input"><label>Mitigation Budget</label><input id="scBudget" type="range" min="0" max="200000" step="5000" value="50000"><div class="ct-val" id="scBudgetVal">$50,000</div></div>
+            <div class="ct-input"><label>Demand Shock</label><input id="scDemand" type="range" min="-30" max="50" value="0"><div class="ct-val" id="scDemandVal">—</div></div>
+            <div class="ct-input"><label>Supplier Delay</label><input id="scDelay" type="range" min="0" max="60" value="0"><div class="ct-val" id="scDelayVal">—</div></div>
+            <div class="ct-input"><label>Price Inflation</label><input id="scInflation" type="range" min="0" max="25" value="0"><div class="ct-val" id="scInflationVal">—</div></div>
+            <div class="ct-input"><label>Mitigation Budget</label><input id="scBudget" type="range" min="0" max="200000" step="5000" value="50000"><div class="ct-val" id="scBudgetVal">—</div></div>
           </div>
           <div id="scenarioOutput" style="margin-top:10px"></div>
         </div>
@@ -568,16 +743,16 @@ body{background:radial-gradient(1100px 540px at 100% -100px,rgba(99,102,241,.23)
 // ══ Navigation ══════════════════════════════════════════════════════
 const PAGE = {
   overview:   ['Dashboard Overview','Overview'],
-  alerts:     ['PRQ Alert System','Phase 1 · Alerts'],
-  crossmatch: ['PRQ × Production Order Cross-Match','Phase 1 · Cross-Match'],
-  email:      ['Alert Email Template','Phase 1 · Email'],
-  forecast:   ['Demand Forecast Model','Phase 2 · Forecast'],
-  inventory:  ['Inventory Movement Analysis','Phase 2 · Inventory'],
-  suppliers:  ['Supplier Intelligence','Phase 2 · Suppliers'],
-  materials:  ['Material Risk Intelligence','Phase 2 · Materials'],
-  leadtime:   ['Lead Time Analysis','Phase 2 · Lead Time'],
+  alerts:     ['PRQ Alert System','Alerts'],
+  crossmatch: ['PRQ × Production Order Cross-Match','Cross-Match'],
+  email:      ['Alert Email Template','Email'],
+  forecast:   ['Demand Forecast Model','Forecast'],
+  inventory:  ['Inventory Movement Analysis','Inventory'],
+  suppliers:  ['Supplier Intelligence','Suppliers'],
+  materials:  ['Material Risk Intelligence','Materials'],
+  leadtime:   ['Lead Time Analysis','Lead Time'],
   actions:    ['Buyer Action Guide','Actions'],
-  tower:      ['Integrated Control Tower','Phase 3 · Decision Intelligence'],
+  tower:      ['Integrated Control Tower','Decision Intelligence'],
 };
 function nav(id,el){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -595,10 +770,10 @@ const MONO="'JetBrains Mono',monospace";
 const CHART_OPT={
   responsive:true,maintainAspectRatio:false,
   interaction:{mode:'index',intersect:false},
-  plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f172a',borderColor:'#2b4166',borderWidth:1,titleColor:'#9aa9c0',bodyColor:'#e6edf7',titleFont:{family:MONO,size:9},bodyFont:{family:MONO,size:10},padding:10}},
-  scales:{x:{ticks:{color:'#9aa9c0',font:{family:MONO,size:9},maxRotation:40,maxTicksLimit:18},grid:{color:'rgba(99,102,241,0.12)'}},y:{ticks:{color:'#9aa9c0',font:{family:MONO,size:9}},grid:{color:'rgba(99,102,241,0.12)'},beginAtZero:true}}
+  plugins:{legend:{display:false},tooltip:{backgroundColor:'#111827',borderColor:'#374151',borderWidth:1,titleColor:'#9CA3AF',bodyColor:'#F9FAFB',titleFont:{family:MONO,size:9},bodyFont:{family:MONO,size:10},padding:10}},
+  scales:{x:{ticks:{color:'#A7B0C0',font:{family:MONO,size:9},maxRotation:40,maxTicksLimit:18},grid:{color:'rgba(96,165,250,0.16)'}},y:{ticks:{color:'#A7B0C0',font:{family:MONO,size:9}},grid:{color:'rgba(96,165,250,0.16)'},beginAtZero:true}}
 };
-const C={pur:'#6366f1',purL:'rgba(99,102,241,.14)',grn:'#22c55e',grnL:'rgba(34,197,94,.14)',amb:'#f59e0b',ambL:'rgba(245,158,11,.14)',red:'#ef4444',redL:'rgba(239,68,68,.14)',blu:'#3b82f6',bluL:'rgba(59,130,246,.14)',cya:'#06b6d4'};
+const C={pur:'#60A5FA',purL:'rgba(96,165,250,.22)',grn:'#34D399',grnL:'rgba(52,211,153,.2)',amb:'#F59E0B',ambL:'rgba(245,158,11,.14)',red:'#EF4444',redL:'rgba(239,68,68,.14)',blu:'#3B82F6',bluL:'rgba(59,130,246,.2)',cya:'#67E8F9'};
 const charts={};
 let inventoryRows=[];
 let inventoryDrillMaterial=null;
@@ -619,7 +794,7 @@ function donutChart(id,labels,data,colors){
   charts[id]?.destroy();
   const ctx=document.getElementById(id)?.getContext('2d');
   if(!ctx)return;
-  charts[id]=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{family:MONO,size:9},color:'#9aa9c0',boxWidth:10}},tooltip:CHART_OPT.plugins.tooltip},cutout:'62%'}});
+  charts[id]=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{family:MONO,size:9},color:'#9CA3AF',boxWidth:10}},tooltip:CHART_OPT.plugins.tooltip},cutout:'62%'}});
 }
 
 function orderChart(id,actual,forecast){
@@ -633,7 +808,7 @@ function orderChart(id,actual,forecast){
   });
   lineChart(id,all,[
     {label:'Actual',data:aVals,borderColor:C.pur,backgroundColor:C.purL,pointBackgroundColor:C.pur},
-    {label:'Forecast',data:fVals,borderColor:C.cya,backgroundColor:'rgba(6,182,212,.07)',borderDash:[5,4],pointBackgroundColor:C.cya},
+    {label:'Forecast',data:fVals,borderColor:C.cya,backgroundColor:'rgba(34,211,238,.07)',borderDash:[5,4],pointBackgroundColor:C.cya},
   ]);
 }
 
@@ -757,14 +932,58 @@ function applyFilters(){
   renderAll();
 }
 
+// ══ Skeleton helpers ═════════════════════════════════════════════
+function skLines(count){return Array.from({length:count},(_,i)=>`<div class="sk sk-line ${['w90','w70','w55','w90','w70'][i%5]}" style="margin-bottom:8px"></div>`).join('');}
+function showSkeletons(){
+  const kpiOv=document.getElementById('kpi-overview');
+  if(kpiOv) kpiOv.innerHTML=Array(4).fill('<div class="sk sk-kpi"></div>').join('');
+  const ins=document.getElementById('insightsList');
+  if(ins) ins.innerHTML=skLines(5);
+}
+
+// ══ KPI counter animation ═════════════════════════════════════════
+function animateCounters(){
+  document.querySelectorAll('.kpi-val[data-target]').forEach(el=>{
+    const raw=el.dataset.target;
+    const isUSD=el.dataset.fmt==='usd';
+    const num=parseFloat(raw.replace(/[^0-9.-]/g,''));
+    if(isNaN(num)) return;
+    const dur=800,start=performance.now();
+    const from=0;
+    function frame(ts){
+      const p=Math.min((ts-start)/dur,1);
+      const ease=1-Math.pow(1-p,3);
+      const cur=from+(num-from)*ease;
+      el.textContent= isUSD
+        ? '$'+cur.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})
+        : cur.toLocaleString('en-US',{maximumFractionDigits:1});
+      if(p<1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  });
+}
+
 async function loadData(){
+  /* ── Show skeleton while data loads ── */
+  const ov=document.getElementById('loadingOverlay');
+  showSkeletons();
+
   try{const r=await fetch('/api/data');if(!r.ok)throw new Error();RAW=await r.json();}
   catch{RAW=EMBEDDED;}
   initFilters();
   applyFilters();
+
+  /* ── Dismiss overlay with a brief polish delay ── */
+  setTimeout(()=>{
+    if(ov){
+      ov.classList.add('fade-out');
+      setTimeout(()=>ov.classList.add('gone'),650);
+    }
+  }, 350);
 }
 
 function renderAll(){
+  renderNarratives();
   renderSuppliers();
   renderOverview();
   renderAlerts();
@@ -774,16 +993,74 @@ function renderAll(){
   renderInventory();
   renderMaterials();
   renderLeadTime();
+  renderActions();
   renderControlTower();
+  requestAnimationFrame(animateCounters);
+}
+
+function renderNarratives(){
+  const meta=D.meta||{};
+  const os=D.orders?.summary||{};
+  const es=D.eban?.summary||{};
+  const ms=D.matdoc?.summary||{};
+  const lnk=D.linkage||{};
+  const model=D.orders?.model||{};
+  const fc=(model.forecast||[]);
+
+  const ver=document.getElementById('sbVersion');
+  if(ver) ver.textContent=meta.version?`v${meta.version}`:'v—';
+
+  const infoAlerts=document.getElementById('infoAlerts');
+  if(infoAlerts){
+    const high=(D.eban?.alerts||[]).filter(a=>['CRITICAL','HIGH'].includes(a.risk)).length;
+    infoAlerts.innerHTML=`ℹ <span><strong>PRQ Alert Engine.</strong> Tracking ${N(es.unique_prqs||0)} requisitions with ${N(high)} critical/high groups across plant ${es.plant||'—'}.</span>`;
+  }
+
+  const infoCross=document.getElementById('infoCrossmatch');
+  if(infoCross){
+    infoCross.innerHTML=`🔗 <span><strong>Cross-file linkage status.</strong> ${N(lnk.prq_to_order_count||0)} confirmed PRQ-to-order links; shared plant ${lnk.shared_plant||'—'}; shared company ${lnk.shared_company||'—'}.</span>`;
+  }
+
+  const infoFc=document.getElementById('infoForecast');
+  if(infoFc){
+    const train=model.train_months ?? 0;
+    const test=model.test_months ?? 0;
+    const mode=model.production_ready?'production ready':'directional';
+    infoFc.innerHTML=`⚠ <span><strong>Model transparency.</strong> ${model.model_name||'Forecast model'} trained on ${N(train)} months with ${N(test)}-month holdout; current mode: <strong>${mode}</strong>.</span>`;
+  }
+
+  const infoMat=document.getElementById('infoMaterials');
+  if(infoMat){
+    infoMat.innerHTML=`◉ <span><strong>Material intelligence from MATDOC.</strong> ${N(ms.unique_materials||0)} materials scored; ${N(ms.excess_risk_materials||0)} currently flagged for excess-risk review.</span>`;
+  }
+
+  const fcTitle=document.getElementById('fcTitle');
+  if(fcTitle) fcTitle.textContent=`Order Volume - Actuals + ${N(fc.length)}-Month Forecast`;
+  const fcTableTitle=document.getElementById('fcTableTitle');
+  if(fcTableTitle) fcTableTitle.textContent=`${N(fc.length)}-Month Forecast Horizon`;
+
+  // Build inventory Top-N options from dataset cardinality.
+  const topSel=document.getElementById('invTopN');
+  if(topSel && !topSel.options.length){
+    const total=Math.max(1,(D.matdoc?.material_intelligence||[]).length);
+    const c1=Math.max(1,Math.min(total,Math.round(total*0.1)));
+    const c2=Math.max(1,Math.min(total,Math.round(total*0.2)));
+    const c3=Math.max(1,Math.min(total,Math.round(total*0.4)));
+    const uniq=[...new Set([c1,c2,c3,total])];
+    topSel.innerHTML=uniq.map(v=>`<option value="${v}" ${v===c2?'selected':''}>${N(v)}</option>`).join('')+`<option value="${total}">All (${N(total)})</option>`;
+  }
 }
 
 // ══ OVERVIEW ══════════════════════════════════════════════════════
 function renderOverview(){
   const os=D.orders?.summary||{},ms=D.matdoc?.summary||{};
   const alerts=D.eban?.alerts||[];
+  const lnk=D.linkage||{};
   const highRisk=alerts.filter(a=>a.risk==='HIGH'||a.risk==='CRITICAL').length;
   document.getElementById('bellCnt').textContent=highRisk;
   document.getElementById('alertBadge').textContent=highRisk;
+  const linkBadge=document.getElementById('linkBadge');
+  if(linkBadge) linkBadge.textContent=N(lnk.prq_to_order_count||0);
 
   document.getElementById('kpi-overview').innerHTML=[
     kpi('Total Orders',N(os.total_orders||0),`${os.date_start}–${os.date_end}`,'purple'),
@@ -805,23 +1082,34 @@ function renderOverview(){
     <div class="insight"><div class="ins-dot ${i.type}"></div>
     <div><div class="ins-title">${i.title}</div><div class="ins-body">${i.body}</div></div></div>`).join('');
 
-  const lnk=D.linkage||{};
   document.getElementById('linkageMap').innerHTML=`
-    <div class="metric-row"><span class="metric-label">PRQ → Order ID</span><span class="link-confirmed">✓ ${lnk.prq_to_order_count||6} confirmed</span></div>
-    <div class="metric-row"><span class="metric-label">Plant linkage</span><span class="link-confirmed">✓ USD6 (EBAN + MATDOC)</span></div>
-    <div class="metric-row"><span class="metric-label">Company code</span><span class="link-confirmed">✓ US10 (MATDOC + Orders)</span></div>
-    <div class="metric-row"><span class="metric-label">MRP controller</span><span class="link-confirmed">✓ PS1 (Orders + MATDOC)</span></div>
+    <div class="metric-row"><span class="metric-label">PRQ → Order ID</span><span class="link-confirmed">✓ ${N(lnk.prq_to_order_count||0)} confirmed</span></div>
+    <div class="metric-row"><span class="metric-label">Plant linkage</span><span class="link-confirmed">✓ ${lnk.shared_plant||'—'} (EBAN + MATDOC)</span></div>
+    <div class="metric-row"><span class="metric-label">Company code</span><span class="link-confirmed">✓ ${lnk.shared_company||'—'} (MATDOC + Orders)</span></div>
+    <div class="metric-row"><span class="metric-label">MRP controller</span><span class="link-confirmed">✓ ${lnk.shared_mrp||'—'} (Orders + MATDOC)</span></div>
     <div class="metric-row"><span class="metric-label">Material join</span><span class="link-missing">✗ blocked — null in COOIS</span></div>
-    <div class="metric-row"><span class="metric-label">PO overlap (EBAN↔MATDOC)</span><span class="link-partial">⚬ 0 direct — different series</span></div>
+    <div class="metric-row"><span class="metric-label">PO overlap (EBAN↔MATDOC)</span><span class="link-partial">⚬ linkage constrained by source coverage</span></div>
     <div class="metric-row" style="border:none"><span class="metric-label">Reservation join</span><span class="link-partial">⚬ series mismatch — needs RESB</span></div>`;
 }
-function kpi(label,val,sub,cls){return`<div class="kpi ${cls}"><div class="kpi-label">${label}</div><div class="kpi-val">${val}</div><div class="kpi-sub">${sub}</div></div>`;}
+function kpi(label,val,sub,cls){
+  const isUSD=String(val).startsWith('$');
+  const raw=String(val).replace(/[^0-9.]/g,'');
+  const fmt=isUSD?'usd':'num';
+  const num=parseFloat(raw);
+  const animated=!isNaN(num);
+  return`<div class="kpi ${cls}">
+    <div class="kpi-label">${label}</div>
+    <div class="kpi-val" ${animated?`data-target="${raw}" data-fmt="${fmt}"`:''}>${val}</div>
+    <div class="kpi-sub">${sub}</div>
+  </div>`;
+}
 function switchMain(type,btn){document.querySelectorAll('#p-overview .tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const d=type==='monthly'?D.orders?.monthly:D.orders?.quarterly||[];orderChart('mainChart',d,D.orders?.model?.forecast||[]);}
 
 // ══ ALERTS ═══════════════════════════════════════════════════════
 function renderAlerts(){
   const alerts=D.eban?.alerts||[];
-  document.getElementById('alertSub').textContent=`${alerts.length} PRQ groups · ${alerts.filter(a=>['CRITICAL','HIGH'].includes(a.risk)).length} critical/high · Plant USD6`;
+  const plant=D.eban?.summary?.plant||'—';
+  document.getElementById('alertSub').textContent=`${alerts.length} PRQ groups · ${alerts.filter(a=>['CRITICAL','HIGH'].includes(a.risk)).length} critical/high · Plant ${plant}`;
   document.getElementById('alertsList').innerHTML=alerts.map(a=>`
     <div class="alert-row">
       <div class="alert-icon ${a.risk==='CRITICAL'||a.risk==='HIGH'?'ai-red':'ai-amber'}">${a.risk==='CRITICAL'?'🚨':a.risk==='HIGH'?'🗑':'⚠'}</div>
@@ -843,8 +1131,11 @@ function renderAlerts(){
 // ══ CROSS-MATCH ══════════════════════════════════════════════════
 function renderCrossMatch(){
   const rows=D.eban?.prq_table||[];
+  const lnk=D.linkage||{};
+  const os=D.orders?.summary||{};
+  const ms=D.matdoc?.summary||{};
   const high=rows.filter(r=>r.risk==='HIGH'||r.risk==='CRITICAL').length;
-  document.getElementById('xmSub').textContent=`${rows.length} PRQ line items · Plant USD6 · 6 confirmed Order links`;
+  document.getElementById('xmSub').textContent=`${rows.length} PRQ line items · Plant ${lnk.shared_plant||D.eban?.summary?.plant||'—'} · ${N(lnk.prq_to_order_count||0)} confirmed order links`;
   document.getElementById('xmBadges').innerHTML=`${bd(high+' High Risk','red')} ${bd((rows.length-high)+' OK','green')}`;
   document.getElementById('xmTable').innerHTML=`
     <thead><tr><th style="width:3px;padding:0"></th><th>PRQ #</th><th>Item</th><th>Description</th><th>Qty</th><th>Req Date</th><th>Dlv Date</th><th>Purchase Order</th><th>Price</th><th>Total</th><th>Plant</th><th>Link</th><th>Risk</th></tr></thead>
@@ -860,19 +1151,18 @@ function renderCrossMatch(){
       <td>${bd(r.risk,riskCls(r.risk))}</td>
     </tr>`).join('')}</tbody>`;
 
-  const lnk=D.linkage||{};
   document.getElementById('linkDetails').innerHTML=`
     ${lnk.confirmed_links?.prq_to_order?.map(id=>`<div class="metric-row"><span class="metric-label">${id}</span><span class="link-confirmed">PRQ = Order ID</span></div>`).join('')||''}
-    <div class="metric-row"><span class="metric-label">Shared Plant</span>${bd(lnk.shared_plant||'USD6','cyan')}</div>
-    <div class="metric-row"><span class="metric-label">Shared Company</span>${bd(lnk.shared_company||'US10','blue')}</div>
-    <div class="metric-row" style="border:none"><span class="metric-label">Shared MRP Ctrl</span>${bd(lnk.shared_mrp||'PS1','purple')}</div>`;
+    <div class="metric-row"><span class="metric-label">Shared Plant</span>${bd(lnk.shared_plant||'—','cyan')}</div>
+    <div class="metric-row"><span class="metric-label">Shared Company</span>${bd(lnk.shared_company||'—','blue')}</div>
+    <div class="metric-row" style="border:none"><span class="metric-label">Shared MRP Ctrl</span>${bd(lnk.shared_mrp||'—','purple')}</div>`;
 
   const gap=lnk.join_gap||{};
   document.getElementById('joinGap').innerHTML=`
     <div class="metric-row"><span class="metric-label">Material in COOIS</span><span class="link-missing">✗ 100% null</span></div>
     <div class="metric-row"><span class="metric-label">Reservation join</span><span class="link-missing">✗ series mismatch</span></div>
     <div class="metric-row"><span class="metric-label">PO overlap EBAN↔MATDOC</span><span class="link-missing">✗ different PO series</span></div>
-    <div class="metric-row"><span class="metric-label">Date overlap (all 3)</span><span class="link-confirmed">✓ Jan 2024 – Mar 2026</span></div>
+    <div class="metric-row"><span class="metric-label">Date overlap</span><span class="link-confirmed">✓ ${ms.date_start||'—'} to ${os.date_end||'—'}</span></div>
     <div class="metric-row" style="border:none"><span class="metric-label">Recommended fix</span>${bd('Re-export COOIS + MATNR','amber')}</div>`;
 }
 
@@ -885,13 +1175,13 @@ function renderEmail(){
   if(!top){document.getElementById('emailContent').innerHTML='<div style="padding:20px;color:var(--muted)">No alerts.</div>';return;}
   document.getElementById('emailContent').innerHTML=`
     <div class="email-hdr">
-      <div class="email-hdr-row"><span class="email-lbl">FROM</span><span>AI4Procure System &lt;ai4procure@dss.com&gt;</span></div>
+      <div class="email-hdr-row"><span class="email-lbl">FROM</span><span>SemiDeep System &lt;semideep@dss.com&gt;</span></div>
       <div class="email-hdr-row"><span class="email-lbl">TO</span><span>Kendra Valton; NA Procurement Buyers &lt;procure@dss.com&gt;</span></div>
       <div class="email-hdr-row"><span class="email-lbl">DATE</span><span>${dateStr}</span></div>
     </div>
     <div class="email-body">
       <div class="email-subject">⚠ ACTION REQUIRED — PRQ Alert: ${top.item_count} items at risk · $${N(top.total_value)} · DS&S NA Procurement</div>
-      <div style="color:var(--muted2);margin-bottom:12px">AI4Procure has detected purchase requisition items linked to active production orders requiring immediate buyer review to prevent excess inventory or missed supplier cancellations.</div>
+      <div style="color:var(--muted2);margin-bottom:12px">SemiDeep has detected purchase requisition items linked to active production orders requiring immediate buyer review to prevent excess inventory or missed supplier cancellations.</div>
       <div class="email-sec">Items Requiring Immediate Action</div>
       <table class="email-tbl"><thead><tr><th>PRQ</th><th>Item</th><th>Description</th><th>Qty</th><th>Purchase Order</th><th>Unit Price</th><th>Risk</th></tr></thead>
       <tbody>${rows.map(r=>`<tr><td class="mono">${r.prq}</td><td class="mono">${r.item}</td><td>${r.description}</td><td>${r.qty}</td><td class="mono">${r.purchase_order}</td><td>${$(r.price)}</td><td style="color:var(--${riskCls(r.risk)});font-weight:600">${r.risk}</td></tr>`).join('')}</tbody></table>
@@ -901,7 +1191,7 @@ function renderEmail(){
         <tr><td><strong>Purchase Orders</strong></td><td>${top.purchase_orders.join(', ')||'—'}</td></tr>
         <tr><td><strong>Requisition date</strong></td><td>${top.req_date}</td></tr>
         <tr><td><strong>Plant</strong></td><td>${top.plant}</td></tr>
-        <tr><td><strong>MRP controller</strong></td><td>PS1</td></tr>
+        <tr><td><strong>MRP controller</strong></td><td>${D.linkage?.shared_mrp||'—'}</td></tr>
         <tr><td><strong>Production order link</strong></td><td>${top.is_prod_order_link?'✓ Confirmed':'Not confirmed'}</td></tr>
       </tbody></table>
       <div class="email-sec">Recommended Actions</div>
@@ -909,10 +1199,10 @@ function renderEmail(){
         <strong>1.</strong> Contact supplier for POs <strong>${top.purchase_orders.join(', ')||'listed above'}</strong> — confirm shipment status immediately.<br>
         <strong>2.</strong> Check production order status in SAP (CO03). Confirm still active and parts are required.<br>
         <strong>3.</strong> If order closed or parts not needed — cancel PO now (ME22N) before supplier ships.<br>
-        <strong>4.</strong> Document action in AI4Procure with reason code and cost avoidance amount.
+        <strong>4.</strong> Document action in SemiDeep with reason code and cost avoidance amount.
       </div>
-      <div class="email-cta"><strong>Quick Access:</strong> &nbsp;<a href="#" style="color:var(--purple)">Open AI4Procure Dashboard</a> &nbsp;·&nbsp; <a href="#" style="color:var(--purple)">PRQ in SAP</a> &nbsp;·&nbsp; <a href="#" style="color:var(--purple)">Contact Supplier</a></div>
-      <div class="email-footer">Auto-generated · AI4Procure v2.0.0 · DS&S NA Procurement Intelligence · Phase 1 pilot<br>Project Manager: Kendra Valton · Plant: USD6 · Company: US10</div>
+      <div class="email-cta"><strong>Quick Access:</strong> &nbsp;<a href="#" style="color:var(--purple)">Open SemiDeep Dashboard</a> &nbsp;·&nbsp; <a href="#" style="color:var(--purple)">PRQ in SAP</a> &nbsp;·&nbsp; <a href="#" style="color:var(--purple)">Contact Supplier</a></div>
+      <div class="email-footer">Auto-generated · SemiDeep v${D.meta?.version||'—'} · DS&S NA Procurement Intelligence<br>Project Manager: Kendra Valton · Plant: ${D.eban?.summary?.plant||'—'} · Company: ${D.linkage?.shared_company||'—'}</div>
     </div>`;
 }
 
@@ -922,13 +1212,13 @@ function renderForecast(){
   const met=m.metrics||{};
   const fc=m.forecast||[];
   const avgM=D.orders?.summary?.avg_monthly||69;
-  const fcTotal=fc.slice(0,6).reduce((s,d)=>s+d.orders,0);
+  const horizon=fc.length;
 
   document.getElementById('kpi-forecast').innerHTML=[
-    kpi('12-Mo Forecast Total',N(fc.reduce((s,d)=>s+d.orders,0)),'orders projected over next 12 months','purple'),
+    kpi(`${N(horizon)}-Mo Forecast Total`,N(fc.reduce((s,d)=>s+d.orders,0)),`orders projected over next ${N(horizon)} months`,'purple'),
     kpi('MAPE',met.mape!=null?met.mape+'%':'—','mean absolute pct error on holdout','amber'),
     kpi('R² Score',met.r2!=null?met.r2:'—','coefficient of determination','blue'),
-    kpi('Model Status',m.production_ready?'Ready':'Directional',m.production_ready?'meets <20% MAPE threshold':'needs 36+ months of data','red'),
+    kpi('Model Status',m.production_ready?'Ready':'Directional',m.production_ready?'meets configured accuracy threshold':'needs more historical data','red'),
   ].join('');
 
   orderChart('fcChart',D.orders?.monthly||[],fc);
@@ -950,7 +1240,7 @@ function renderForecast(){
     <div class="metric-row"><span class="metric-label">MAPE</span><span class="mape-pill ${mapeCls(met.mape||100)}">${met.mape!=null?met.mape+'%':'—'}</span></div>
     <div class="metric-row"><span class="metric-label">RMSE</span><span class="metric-val">${met.rmse||'—'}</span></div>
     <div class="metric-row"><span class="metric-label">MAE</span><span class="metric-val">${met.mae||'—'}</span></div>
-    <div class="metric-row"><span class="metric-label">Production ready?</span>${m.production_ready?bd('Yes — MAPE < 20%','green'):bd('No — directional only','amber')}</div>
+    <div class="metric-row"><span class="metric-label">Production ready?</span>${m.production_ready?bd('Yes','green'):bd('No - directional only','amber')}</div>
     <div class="metric-row" style="border:none"><span class="metric-label">Upgrade path</span>${bd('Prophet / SARIMA','purple')}</div>
     <div style="margin-top:12px;padding:10px;background:var(--surface2);border-radius:6px;font-size:10px;color:var(--muted2);line-height:1.5">${m.model_note||''}</div>`;
 }
@@ -1010,13 +1300,13 @@ function renderInventory(){
     kpi('Total Doc Value',$(ms.total_amount||0),`${ms.total_docs||0} material documents`,'purple'),
     kpi('Goods Receipts',$(ms.gr_amount||0),'inbound inventory value','green'),
     kpi('Goods Issues',$(ms.gi_amount||0),'to production orders','amber'),
-    kpi('Unique Materials',N(ms.unique_materials||0),`${ms.unique_pos||0} purchase orders · Plant ${ms.plant||'USD6'}`,'blue'),
+    kpi('Unique Materials',N(ms.unique_materials||0),`${ms.unique_pos||0} purchase orders · Plant ${ms.plant||'—'}`,'blue'),
   ].join('');
 
   const grgi=D.matdoc?.gr_gi_monthly||[];
   const grgiCtx=document.getElementById('grgiChart')?.getContext('2d');
   charts.grgi?.destroy();
-  if(grgiCtx){charts.grgi=new Chart(grgiCtx,{type:'bar',data:{labels:grgi.map(d=>d.month),datasets:[{label:'GR',data:grgi.map(d=>d.gr),backgroundColor:C.grn+'bb',borderRadius:3},{label:'GI',data:grgi.map(d=>d.gi),backgroundColor:C.amb+'bb',borderRadius:3}]},options:{...CHART_OPT,plugins:{...CHART_OPT.plugins,legend:{display:true,labels:{font:{family:MONO,size:9},color:'#9aa9c0',boxWidth:10}}}}});}
+  if(grgiCtx){charts.grgi=new Chart(grgiCtx,{type:'bar',data:{labels:grgi.map(d=>d.month),datasets:[{label:'GR',data:grgi.map(d=>d.gr),backgroundColor:C.grn+'bb',borderRadius:3},{label:'GI',data:grgi.map(d=>d.gi),backgroundColor:C.amb+'bb',borderRadius:3}]},options:{...CHART_OPT,plugins:{...CHART_OPT.plugins,legend:{display:true,labels:{font:{family:MONO,size:9},color:'#9CA3AF',boxWidth:10}}}}});}
 
   const mvt=(D.matdoc?.movement_breakdown||[]).slice(0,8);
   const mvtColors=[C.pur,C.grn,C.amb,C.red,C.blu,C.cya,'#d18f42','#a85d3a'];
@@ -1027,7 +1317,7 @@ function renderInventory(){
     <tbody>${pos.map(p=>`<tr><td class="mono" style="font-weight:600">${p.po}</td><td class="mono" style="color:var(--purple)">${$(p.amount)}</td><td class="mono">${N(p.qty)}</td><td class="mono">${p.docs}</td><td class="mono">${$(p.amount/p.docs)}</td></tr>`).join('')}</tbody>`;
 
   const mats=(D.matdoc?.material_intelligence||[]).slice().sort((a,b)=>b.total_value-a.total_value);
-  const topN=Math.max(1,Number(document.getElementById('invTopN')?.value||25));
+  const topN=Math.max(1,Number(document.getElementById('invTopN')?.value||Math.max(1,Math.round(Math.max(1,mats.length)*0.2))));
   const topM=mats.slice(0,Math.min(topN,12));
   inventoryRows=mats.slice(0,topN);
   const colors=topM.map(m=>m.risk_label==='EXCESS'?C.amb+'cc':m.risk_label==='SHORTAGE'?C.red+'cc':C.pur+'99');
@@ -1073,7 +1363,7 @@ function renderInventoryDrilldown(mats){
       <tr><td>Average Unit Cost</td><td class="mono">${$(m.avg_unit_cost)}</td><td>Unit economics for reorder decisions</td></tr>
       <tr><td>Last Movement</td><td class="mono">${m.last_movement}</td><td>Recency signal for slow-moving detection</td></tr>
       <tr><td>Days Since Last Move</td><td class="mono">${N(m.days_since_last||0)} days</td><td>Aging indicator</td></tr>
-      <tr><td>Risk Label</td><td>${bd(m.risk_label,m.risk_label==='EXCESS'?'amber':m.risk_label==='SHORTAGE'?'red':'green')}</td><td>AI4Procure inventory risk class</td></tr>
+      <tr><td>Risk Label</td><td>${bd(m.risk_label,m.risk_label==='EXCESS'?'amber':m.risk_label==='SHORTAGE'?'red':'green')}</td><td>SemiDeep inventory risk class</td></tr>
     </tbody>`;
 }
 
@@ -1116,9 +1406,8 @@ function renderMaterials(){
 
   const maxVal=Math.max(...mats.map(m=>m.total_value),1);
   document.getElementById('matTable').innerHTML=`
-    <thead><tr><th>#</th><th>Material</th><th>Total Value</th><th>GR Qty</th><th>GI Qty</th><th>Turnover</th><th>Avg Unit Cost</th><th>Last Move</th><th>Slow?</th><th>Risk</th></tr></thead>
-    <tbody>${mats.map((m,i)=>`<tr>
-      <td class="mono" style="color:var(--muted)">${i+1}</td>
+    <thead><tr><th>Material</th><th>Total Value</th><th>GR Qty</th><th>GI Qty</th><th>Turnover</th><th>Avg Unit Cost</th><th>Last Move</th><th>Slow?</th><th>Risk</th></tr></thead>
+    <tbody>${mats.map((m)=>`<tr>
       <td class="mono" style="font-weight:600">${m.material}</td>
       <td>
         <div style="display:flex;align-items:center;gap:8px">
@@ -1157,14 +1446,46 @@ function renderLeadTime(){
     {label:'Median Lead Days',data:byQ.map(q=>q.median),borderColor:C.grn,backgroundColor:'transparent',borderDash:[4,3],pointBackgroundColor:C.grn},
   ]);
 
+  const visMonths=Math.max(1,Math.round((Number(lt.overall_mean||0))/30));
   document.getElementById('leadStats').innerHTML=`
     <div class="metric-row"><span class="metric-label">Overall mean</span><span class="metric-val">${lt.overall_mean}d</span></div>
     <div class="metric-row"><span class="metric-label">Overall median</span><span class="metric-val">${lt.overall_median}d</span></div>
     <div class="metric-row"><span class="metric-label">Std deviation</span><span class="metric-val">${lt.overall_std}d</span></div>
     <div class="metric-row"><span class="metric-label">Peak lead time quarter</span><span class="metric-val">${byQ.length?byQ.reduce((a,b)=>a.mean>b.mean?a:b).quarter:'—'}</span></div>
     <div class="metric-row"><span class="metric-label">Best lead time quarter</span><span class="metric-val">${byQ.length?byQ.reduce((a,b)=>a.mean<b.mean?a:b).quarter:'—'}</span></div>
-    <div class="metric-row"><span class="metric-label">PRQ window implication</span><span class="metric-val" style="color:var(--amber)">216d avg = buyers need 7mo visibility</span></div>
+    <div class="metric-row"><span class="metric-label">PRQ window implication</span><span class="metric-val" style="color:var(--amber)">${N(lt.overall_mean||0)}d avg = buyers need ${N(visMonths)}mo visibility</span></div>
     <div class="metric-row" style="border:none"><span class="metric-label">Deletion risk window</span><span class="metric-val" style="color:var(--red)">Any PRQ deleted in this window is at risk</span></div>`;
+}
+
+function renderActions(){
+  const alerts=D.eban?.alerts||[];
+  const lnk=D.linkage||{};
+  const mat=D.matdoc?.material_intelligence||[];
+  const spikes=D.matdoc?.spend_intelligence?.spike_count||0;
+  const m=D.orders?.model||{};
+  const riskValue=D.eban?.summary?.high_risk_value||0;
+  const highAlerts=alerts.filter(a=>['HIGH','CRITICAL'].includes(a.risk)).length;
+  const excessCount=mat.filter(x=>x.risk_label==='EXCESS').length;
+
+  const immediate=[
+    {title:'Daily cross-match: deleted PRQs vs active production orders',body:`Monitor ${N(lnk.prq_to_order_count||0)} confirmed PRQ-to-order links and escalate ${N(highAlerts)} high-priority alert groups in the current dataset.`,tags:['EBAN', 'COOIS', 'Alert routing']},
+    {title:'Contact suppliers for flagged PRQs',body:`Use the generated alert email for open risk lines; current high-risk value in scope is ${$(riskValue)}.`,tags:['Supplier outreach','Email template','Audit trail']},
+    {title:'Execute PO decisions in SAP',body:`For unresolved confirmations, execute cancel/expedite actions and log resulting cost avoidance against live alert records.`,tags:['SAP ME22N','Decision log','Cost avoidance']},
+    {title:'Feed outcomes back to risk model',body:`Resolved alerts feed model learning loops and improve ranking confidence for future interventions.`,tags:['Learning loop','Risk model','Governance']},
+  ];
+
+  const strategic=[
+    {title:'Close join coverage gaps',body:`Current linkage state: plant ${lnk.shared_plant||'—'}, company ${lnk.shared_company||'—'}, MRP ${lnk.shared_mrp||'—'}. Resolve remaining schema gaps for full traceability.`,tags:['Data quality','Cross-source join']},
+    {title:'Improve forecast readiness',body:`Model status is ${m.production_ready?'ready':'directional'} with ${N(m.train_months||0)} training months and ${N(m.test_months||0)} holdout months.`,tags:['Forecasting','Model governance']},
+    {title:'Work excess inventory risk',body:`${N(excessCount)} materials are currently marked EXCESS; prioritize high-value slow movers for reallocation or vendor return.`,tags:['Inventory review','Working capital']},
+    {title:'Automate spike surveillance',body:`Spend intelligence currently reports ${N(spikes)} spike periods; keep alerts active on abnormal spend acceleration.`,tags:['Spend alerts','Anomaly detection']},
+  ];
+
+  const step=(item)=>`<div class="step"><div class="step-num">●</div><div><div class="step-title">${item.title}</div><div class="step-body">${item.body}</div><div class="step-tags">${item.tags.map(t=>`<span class="step-tag">${t}</span>`).join('')}</div></div></div>`;
+  const immEl=document.getElementById('actionsImmediate');
+  if(immEl) immEl.innerHTML=immediate.map(step).join('');
+  const stEl=document.getElementById('actionsStrategic');
+  if(stEl) stEl.innerHTML=strategic.map(step).join('');
 }
 
 // ══ CONTROL TOWER ═══════════════════════════════════════════════
@@ -1224,6 +1545,13 @@ function renderControlTower(){
   const totalSave=actions.reduce((s,a)=>s+a.save,0);
   const urgent=actions.filter(a=>a.score>=80).length;
   const linked=actions.filter(a=>a.action!=='Monitor').length;
+  const etaToHours=e=>{const n=Number(String(e).replace(/[^0-9.]/g,''));if(Number.isNaN(n)) return 0;return String(e).includes('h')?n:n*24;};
+  const avgCycleDays=name=>{
+    const rows=actions.filter(a=>a.action===name);
+    if(!rows.length) return '—';
+    const avgH=rows.reduce((s,r)=>s+etaToHours(r.eta),0)/rows.length;
+    return `${Math.round((avgH/24)*10)/10}d`;
+  };
 
   document.getElementById('kpi-tower').innerHTML=[
     kpi('Recommended Actions',N(actions.length),'top ranked interventions this cycle','purple'),
@@ -1247,16 +1575,16 @@ function renderControlTower(){
   document.getElementById('towerRoiTable').innerHTML=`
     <thead><tr><th>Decision Type</th><th>Volume</th><th>Avg Save</th><th>Cycle Time</th><th>Confidence</th></tr></thead>
     <tbody>
-      <tr><td>Supplier Escalation</td><td class="mono">${actions.filter(a=>a.action==='Supplier Escalation').length}</td><td class="mono">${$(actions.filter(a=>a.action==='Supplier Escalation').reduce((s,a)=>s+a.save,0)/Math.max(actions.filter(a=>a.action==='Supplier Escalation').length,1))}</td><td class="mono">1.2d</td><td>${bd('High','green')}</td></tr>
-      <tr><td>Recover / Replace PRQ</td><td class="mono">${actions.filter(a=>a.action==='Recover / Replace PRQ').length}</td><td class="mono">${$(actions.filter(a=>a.action==='Recover / Replace PRQ').reduce((s,a)=>s+a.save,0)/Math.max(actions.filter(a=>a.action==='Recover / Replace PRQ').length,1))}</td><td class="mono">0.8d</td><td>${bd('High','green')}</td></tr>
-      <tr><td>Expedite Confirmation</td><td class="mono">${actions.filter(a=>a.action==='Expedite Confirmation').length}</td><td class="mono">${$(actions.filter(a=>a.action==='Expedite Confirmation').reduce((s,a)=>s+a.save,0)/Math.max(actions.filter(a=>a.action==='Expedite Confirmation').length,1))}</td><td class="mono">1.6d</td><td>${bd('Medium','amber')}</td></tr>
-      <tr><td>Monitor</td><td class="mono">${actions.filter(a=>a.action==='Monitor').length}</td><td class="mono">${$(actions.filter(a=>a.action==='Monitor').reduce((s,a)=>s+a.save,0)/Math.max(actions.filter(a=>a.action==='Monitor').length,1))}</td><td class="mono">3.0d</td><td>${bd('Low','red')}</td></tr>
+      <tr><td>Supplier Escalation</td><td class="mono">${actions.filter(a=>a.action==='Supplier Escalation').length}</td><td class="mono">${$(actions.filter(a=>a.action==='Supplier Escalation').reduce((s,a)=>s+a.save,0)/Math.max(actions.filter(a=>a.action==='Supplier Escalation').length,1))}</td><td class="mono">${avgCycleDays('Supplier Escalation')}</td><td>${bd('High','green')}</td></tr>
+      <tr><td>Recover / Replace PRQ</td><td class="mono">${actions.filter(a=>a.action==='Recover / Replace PRQ').length}</td><td class="mono">${$(actions.filter(a=>a.action==='Recover / Replace PRQ').reduce((s,a)=>s+a.save,0)/Math.max(actions.filter(a=>a.action==='Recover / Replace PRQ').length,1))}</td><td class="mono">${avgCycleDays('Recover / Replace PRQ')}</td><td>${bd('High','green')}</td></tr>
+      <tr><td>Expedite Confirmation</td><td class="mono">${actions.filter(a=>a.action==='Expedite Confirmation').length}</td><td class="mono">${$(actions.filter(a=>a.action==='Expedite Confirmation').reduce((s,a)=>s+a.save,0)/Math.max(actions.filter(a=>a.action==='Expedite Confirmation').length,1))}</td><td class="mono">${avgCycleDays('Expedite Confirmation')}</td><td>${bd('Medium','amber')}</td></tr>
+      <tr><td>Monitor</td><td class="mono">${actions.filter(a=>a.action==='Monitor').length}</td><td class="mono">${$(actions.filter(a=>a.action==='Monitor').reduce((s,a)=>s+a.save,0)/Math.max(actions.filter(a=>a.action==='Monitor').length,1))}</td><td class="mono">${avgCycleDays('Monitor')}</td><td>${bd('Low','red')}</td></tr>
     </tbody>`;
 
   document.getElementById('towerQueue').innerHTML=actions.slice(0,8).map((a,i)=>`
     <div class="queue-item">
       <div class="queue-left">
-        <div class="queue-title">${i+1}. ${a.action} - PRQ ${a.prq}</div>
+        <div class="queue-title">${a.action} - PRQ ${a.prq}</div>
         <div class="queue-sub">${a.desc} | PO ${a.po}</div>
       </div>
       <div class="queue-score">${a.score}</div>

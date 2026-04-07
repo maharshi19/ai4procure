@@ -961,11 +961,16 @@ class AI4ProcureProcessor:
 def create_app(processor):
     app = Flask(__name__)
     payload = processor.build()
+    base_dir = Path(__file__).parent
 
     @app.route("/")
     def index():
-        html = Path(__file__).parent / "ai4procure_dashboard.html"
+        html = base_dir / "ai4procure_dashboard.html"
         return html.read_text(encoding="utf-8", errors="replace") if html.exists() else "<h1>AI4Procure v2</h1><p>Place ai4procure_dashboard.html in the same directory.</p>"
+
+    @app.route("/SemiDeep.png")
+    def semideep_logo():
+        return send_from_directory(base_dir, "SemiDeep.png")
 
     @app.route("/api/data")           
     def data():           return jsonify(payload)

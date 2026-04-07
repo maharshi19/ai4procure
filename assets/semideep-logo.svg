@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="320" viewBox="0 0 900 320" role="img" aria-label="SemiDeep logo">
+  <defs>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8CF7FF"/>
+      <stop offset="100%" stop-color="#41E9FF"/>
+    </linearGradient>
+    <style>
+      .trace { stroke: #AAB4C0; stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .node { stroke: #AAB4C0; stroke-width: 4; fill: #0B1220; }
+      .word { font-family: Georgia, 'Times New Roman', serif; font-size: 132px; fill: url(#cyan); }
+    </style>
+  </defs>
+
+  <g transform="translate(408 84)">
+    <rect x="-28" y="-28" width="56" height="56" rx="12" class="trace"/>
+    <path d="M -28 -8 h -28" class="trace"/>
+    <path d="M -28 8 h -28" class="trace"/>
+    <path d="M 28 -8 h 28" class="trace"/>
+    <path d="M 28 8 h 28" class="trace"/>
+    <path d="M -8 -28 v -28" class="trace"/>
+    <path d="M 8 -28 v -28" class="trace"/>
+    <path d="M -8 28 v 28" class="trace"/>
+    <path d="M 8 28 v 28" class="trace"/>
+
+    <path d="M -56 -8 h -14" class="trace"/>
+    <path d="M -56 8 h -14" class="trace"/>
+    <path d="M 56 -8 h 14" class="trace"/>
+    <path d="M 56 8 h 14" class="trace"/>
+    <path d="M -8 -56 v -14" class="trace"/>
+    <path d="M 8 -56 v -14" class="trace"/>
+    <path d="M -8 56 v 14" class="trace"/>
+    <path d="M 8 56 v 14" class="trace"/>
+
+    <circle cx="-74" cy="-8" r="7" class="node"/>
+    <circle cx="-74" cy="8" r="7" class="node"/>
+    <circle cx="74" cy="-8" r="7" class="node"/>
+    <circle cx="74" cy="8" r="7" class="node"/>
+    <circle cx="-8" cy="-74" r="7" class="node"/>
+    <circle cx="8" cy="-74" r="7" class="node"/>
+    <circle cx="-8" cy="74" r="7" class="node"/>
+    <circle cx="8" cy="74" r="7" class="node"/>
+  </g>
+
+  <text x="450" y="245" text-anchor="middle" class="word" filter="url(#glow)">SemiDeep</text>
+</svg>
