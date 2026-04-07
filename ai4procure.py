@@ -962,6 +962,7 @@ def create_app(processor):
     app = Flask(__name__)
     payload = processor.build()
     base_dir = Path(__file__).parent
+    assets_dir = base_dir / "assets"
 
     @app.route("/")
     def index():
@@ -971,6 +972,15 @@ def create_app(processor):
     @app.route("/SemiDeep.png")
     def semideep_logo():
         return send_from_directory(base_dir, "SemiDeep.png")
+
+    # Linux hosts are case-sensitive; keep both routes to avoid broken logo URLs.
+    @app.route("/semideep.png")
+    def semideep_logo_lower():
+        return send_from_directory(base_dir, "SemiDeep.png")
+
+    @app.route("/assets/<path:filename>")
+    def assets_file(filename):
+        return send_from_directory(assets_dir, filename)
 
     @app.route("/api/data")           
     def data():           return jsonify(payload)
