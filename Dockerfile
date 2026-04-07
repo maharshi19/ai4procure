@@ -7,6 +7,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ai4procure.py .
 COPY ai4procure_dashboard.html .
+COPY SemiDeep.png .
+COPY assets ./assets
 COPY Headers_xlsx_Sheet1.csv .
 COPY Book2_xlsx_Sheet1.csv .
 COPY Book5.xlsx .
